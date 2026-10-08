@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>My Datasets</h3>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">Upload New Dataset</a>
+        </div>
+
+        {% if datasets %}
+        <table class="table table-hover shadow-sm bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Uploaded At</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in datasets %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ d.name }}</td>
+                    <td>{{ d.uploaded_at|date:"d M Y, H:i" }}</td>
+                    <td>
+                        <a href="{% url 'dashboard_with_id' d.id %}" class="btn btn-sm btn-success">Analyze</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">Abhi tak koi dataset upload nahi hua hai.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

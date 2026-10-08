@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-4">
+        <h2>Welcome to BSP Dashboard</h2>
+        <p class="text-muted">Upload your dataset to start analysis</p>
+    </div>
+</div>
+
+<!-- Upload Form -->
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Upload Dataset (CSV/Excel)</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'upload_dataset' %}" enctype="multipart/form-data" onsubmit="showSpinner('uploadBtn', 'Uploading...')">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="dataset_file" class="form-label">Choose File</label>
+                        <input type="file" name="dataset_file" class="form-control" accept=".csv, .xlsx" required>
+                    </div>
+                    <button type="submit" id="uploadBtn" class="btn btn-success w-100">Upload & Analyze</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if dataset_name %}
+<hr class="my-5">
+<h3 class="text-center text-success">Analysis of: {{ dataset_name }}</h3>
+
+<!-- AI Summary -->
+<div class="alert alert-info mt-4 shadow-sm">
+    <h4 class="alert-heading">🤖 AI Generated Insights</h4>
+    <hr>
+    <p class="mb-0">{{ ai_summary }}</p>
+</div>
+
+<!-- Data Quality Report -->
+{% if quality %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h5>📋 Data Quality Report</h5>
+        <div class="row text-center g-3">
+            <div class="col-md-3">
+                <div class="card bg-info text-white shadow-sm">
+                    <div class="card-body">
+                        <h4>{{ quality.total_rows }}</h4>
+                        <p class="mb-0">Total Rows</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark shadow-sm">
+                    <div class="card-body">
+                        <h4>{{ quality.missing_values }}</h4>
+                        <p class="mb-0">Missing Cells ({{ quality.missing_percentage }}%)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white shadow-sm">
+                    <div class="card-body">
+                        <h4>{{ quality.duplicate_rows }}</h4>
+                        <p class="mb-0">Duplicate Rows</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white shadow-sm">
+                    <div class="card-body">
+                        <h4>{{ quality.quality_score }}%</h4>
+                        <p class="mb-0">Quality Score</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Scatter Plot Chart -->
+{% if chart %}
+    <h5 class="mt-4">Data Chart (Plotly Scatter Plot):</h5>
+    <div class="border p-3 bg-white">
+        {{ chart|safe }}
+    </div>
+{% endif %}
+
+<!-- Time-Series Trend Chart -->
+{% if time_chart %}
+    <h5 class="mt-4">📈 Time-Series Trend:</h5>
+    <div class="border p-3 bg-white">
+        {{ time_chart|safe }}
+    </div>
+{% endif %}
+
+<!-- Correlation Heatmap -->
+{% if correlation_chart %}
+    <h5 class="mt-4">🔥 Correlation Heatmap:</h5>
+    <div class="border p-3 bg-white">
+        {{ correlation_chart|safe }}
+    </div>
+{% endif %}
+
+<!-- Table Section -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h5>Column Names:</h5>
+        <p class="badge bg-secondary">{{ columns }}</p>
+        <h5 class="mt-4">First 5 Rows (Pandas Output):</h5>
+        <div class="table-responsive">
+            {{ head|safe }}
+        </div>
+    </div>
+</div>
+
+<!-- Machine Learning Section -->
+<div class="mt-5 text-center border-top pt-4 pb-4">
+    <h4>Machine Learning Engine</h4>
+    <p class="text-muted">Automatically selects the best algorithm for your data.</p>
+    <a href="{% url 'train_model' dataset_id %}" id="trainBtn" onclick="showSpinner('trainBtn', 'Training...')" class="btn btn-warning btn-lg px-4">🤖 Train ML Model</a>
+
+    {% if request.session.ml_result %}
+        {% with r=request.session.ml_result %}
+        <div class="alert alert-success mt-4 w-75 mx-auto shadow-sm">
+            <h5 class="alert-heading">✅ Model Trained Successfully!</h5>
+            <hr>
+            <div class="row">
+                <div class="col-md-6 text-start">
+                    <p><b>Problem Type:</b> {{ r.problem_type }}</p>
+                    <p><b>Best Algorithm:</b> <span class="badge bg-primary">{{ r.best_algorithm }}</span></p>
+                    <p><b>{{ r.metric_name }}:</b> <span class="badge bg-success">{{ r.best_score }}</span></p>
+                </div>
+                <div class="col-md-6 text-start">
+                    <h6>All Algorithms Tested:</h6>
+                    <ul class="list-unstyled">
+                        {% for algo, score in r.all_results.items %}
+                            <li>• <b>{{ algo }}:</b> {{ score }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            {% if r.feature_importance %}
+                <hr>
+                <h6 class="text-start">📊 Feature Importance (Top 5):</h6>
+                <div class="text-start">
+                    {% for feature, importance in r.feature_importance.items %}
+                        {% if forloop.counter <= 5 %}
+                            <div class="mb-1">
+                                <span class="badge bg-secondary">{{ feature }}</span> : <b>{{ importance }}</b>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-3">
+            <a href="{% url 'download_report' dataset_id %}" id="pdfBtn" onclick="showSpinner('pdfBtn', 'Generating PDF...')" class="btn btn-danger btn-lg px-4">📄 Download PDF Report</a>
+        </div>
+
+        <div class="mt-2">
+            <a href="{% url 'email_report' dataset_id %}" id="emailBtn" onclick="showSpinner('emailBtn', 'Sending Email...')" class="btn btn-info btn-lg px-4">📧 Email Report</a>
+        </div>
+
+        {% if email_sent %}
+            <div class="alert alert-success mt-3 w-50 mx-auto">
+                ✅ Email sent successfully! Check the terminal.
+            </div>
+        {% endif %}
+        {% endwith %}
+    {% endif %}
+</div>
+
+{% endif %}
+
+{% if error %}
+<div class="alert alert-danger mt-3 shadow-sm">Error: {{ error }}</div>
+{% endif %}
+
+{% endblock %}

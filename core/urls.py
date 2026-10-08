@@ -1,0 +1,12 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.dashboard_view, name='dashboard'),
+    path('dataset/<int:dataset_id>/', views.dashboard_view, name='dashboard_with_id'),
+    path('datasets/', views.dataset_list_view, name='dataset_list'),
+    path('upload/', views.upload_dataset, name='upload_dataset'),
+    path('train/<int:dataset_id>/', views.train_model_view, name='train_model'),
+    path('download-report/<int:dataset_id>/', views.download_report_view, name='download_report'),
+    path('email-report/<int:dataset_id>/', views.email_report_view, name='email_report'),
+]
