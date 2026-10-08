@@ -9,4 +9,6 @@ urlpatterns = [
     path('train/<int:dataset_id>/', views.train_model_view, name='train_model'),
     path('download-report/<int:dataset_id>/', views.download_report_view, name='download_report'),
     path('email-report/<int:dataset_id>/', views.email_report_view, name='email_report'),
+    path('merge/', views.merge_datasets_view, name='merge_datasets'),
+    path('clean/<int:dataset_id>/', views.clean_data_view, name='clean_data'),
 ]

@@ -3,10 +3,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.http import HttpResponse
+from django.core.files.base import ContentFile
+from io import BytesIO
+import pandas as pd
 from .models import Dataset
 from analytics.analyzer import DataAnalyzer
 from analytics.ai_summary import generate_ai_summary
 from analytics.pdf import generate_pdf
+from analytics.cleaner import DataCleaner
 from ml_engine.trainer import ModelTrainer
 
 
@@ -36,6 +40,7 @@ def dashboard_view(request, dataset_id=None):
             context['time_chart'] = analyzer.get_time_series_chart()
             context['correlation_chart'] = analyzer.get_correlation_heatmap()
             context['quality'] = analyzer.get_data_quality()
+            context['text_analysis'] = analyzer.get_text_analysis()
             context['ai_summary'] = generate_ai_summary(analyzer)
         except Exception as e:
             context['error'] = str(e)
@@ -71,6 +76,7 @@ def train_model_view(request, dataset_id):
             context['time_chart'] = analyzer.get_time_series_chart()
             context['correlation_chart'] = analyzer.get_correlation_heatmap()
             context['quality'] = analyzer.get_data_quality()
+            context['text_analysis'] = analyzer.get_text_analysis()
         except:
             pass
         return render(request, 'core/dashboard.html', context)
@@ -133,9 +139,99 @@ def email_report_view(request, dataset_id):
             context['time_chart'] = analyzer.get_time_series_chart()
             context['correlation_chart'] = analyzer.get_correlation_heatmap()
             context['quality'] = analyzer.get_data_quality()
+            context['text_analysis'] = analyzer.get_text_analysis()
             context['ai_summary'] = generate_ai_summary(analyzer)
         except:
             pass
         return render(request, 'core/dashboard.html', context)
 
     return redirect('dashboard_with_id', dataset_id=dataset_id)
+
+
+@login_required(login_url='login')
+def merge_datasets_view(request):
+    datasets = Dataset.objects.all().order_by('-uploaded_at')
+
+    if request.method == 'POST':
+        selected_ids = request.POST.getlist('selected_datasets')
+
+        if len(selected_ids) < 2:
+            return render(request, 'core/merge_datasets.html', {
+                'datasets': datasets,
+                'error': 'Kam se kam 2 files select karo.'
+            })
+
+        try:
+            dfs = []
+            for did in selected_ids:
+                ds = Dataset.objects.get(id=did)
+                if str(ds.file.path).endswith('.csv'):
+                    df = pd.read_csv(ds.file.path)
+                else:
+                    df = pd.read_excel(ds.file.path)
+                dfs.append(df)
+
+            merged_df = pd.concat(dfs, ignore_index=True)
+
+            csv_buffer = BytesIO()
+            merged_df.to_csv(csv_buffer, index=False)
+            csv_buffer.seek(0)
+
+            filename = f"merged_{len(selected_ids)}files.csv"
+            new_dataset = Dataset(name=filename)
+            new_dataset.file.save(filename, ContentFile(csv_buffer.read()))
+            if request.user.is_authenticated:
+                new_dataset.user = request.user
+            new_dataset.save()
+
+            return redirect('dashboard_with_id', dataset_id=new_dataset.id)
+
+        except Exception as e:
+            return render(request, 'core/merge_datasets.html', {
+                'datasets': datasets,
+                'error': str(e)
+            })
+
+    return render(request, 'core/merge_datasets.html', {'datasets': datasets})
+
+
+# 🟢 NEW: Clean Data View
+@login_required(login_url='login')
+def clean_data_view(request, dataset_id):
+    latest_dataset = get_object_or_404(Dataset, id=dataset_id)
+    analyzer = DataAnalyzer(latest_dataset.file.path)
+
+    if request.method == 'POST':
+        cleaner = DataCleaner(latest_dataset.file.path)
+
+        if request.POST.get('remove_duplicates'):
+            cleaner.remove_duplicates()
+        if request.POST.get('fill_numeric'):
+            cleaner.fill_numeric_missing()
+        if request.POST.get('fill_text'):
+            cleaner.fill_text_missing()
+        if request.POST.get('drop_missing'):
+            cleaner.drop_missing_rows()
+
+        csv_buffer = BytesIO()
+        cleaner.df.to_csv(csv_buffer, index=False)
+        csv_buffer.seek(0)
+
+        base_name = latest_dataset.name
+        if '.' in base_name:
+            base_name = base_name.rsplit('.', 1)[0]
+        filename = f"cleaned_{base_name}.csv"
+
+        new_dataset = Dataset(name=filename)
+        new_dataset.file.save(filename, ContentFile(csv_buffer.read()))
+        if request.user.is_authenticated:
+            new_dataset.user = request.user
+        new_dataset.save()
+
+        return redirect('dashboard_with_id', dataset_id=new_dataset.id)
+
+    return render(request, 'core/clean_data.html', {
+        'dataset': latest_dataset,
+        'dataset_id': dataset_id,
+        'quality': analyzer.get_data_quality()
+    })

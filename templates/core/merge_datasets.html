@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-lg border-0" style="border-radius: 20px;">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
+                <h4 class="mb-0"><i class="bi bi-intersect"></i> Merge Multiple Datasets</h4>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-muted">
+                    Select 2 or more datasets to merge them into a single file.
+                    <br><small>Note: Columns should be similar (same names) for best results.</small>
+                </p>
+
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    {% if datasets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th width="50">Select</th>
+                                    <th>Dataset Name</th>
+                                    <th>Uploaded</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for d in datasets %}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="selected_datasets" value="{{ d.id }}" class="form-check-input">
+                                    </td>
+                                    <td>{{ d.name }}</td>
+                                    <td>{{ d.uploaded_at|date:"d M Y, H:i" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button type="submit" class="btn btn-lg w-100 text-white fw-semibold mt-3"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
+                        <i class="bi bi-intersect"></i> Merge Selected Datasets
+                    </button>
+                    {% else %}
+                    <div class="alert alert-info">Pehle kuch datasets upload karo.</div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

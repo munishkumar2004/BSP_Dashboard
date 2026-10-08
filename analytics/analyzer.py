@@ -14,7 +14,6 @@ class DataAnalyzer:
         return self.df.describe().to_dict()
 
     def get_head(self):
-        # 🟢 Bootstrap classes add ki gayi hain, taaki table professional dikhe
         return self.df.iloc[:, :15].head().to_html(
             classes='table table-striped table-bordered table-hover',
             border=0,
@@ -104,3 +103,49 @@ class DataAnalyzer:
             'duplicate_rows': int(self.df.duplicated().sum()),
             'quality_score': round(100 - missing_pct, 2)
         }
+
+    # 🟢 NEW: Text Column Analysis
+    def get_text_analysis(self):
+        text_cols = []
+        for col in self.df.columns:
+            if not pd.api.types.is_numeric_dtype(self.df[col]):
+                is_date = False
+                try:
+                    pd.to_datetime(self.df[col].dropna().head(10), errors='raise')
+                    is_date = True
+                except:
+                    pass
+                if not is_date:
+                    text_cols.append(col)
+
+        if not text_cols:
+            return None
+
+        col = text_cols[0]
+        value_counts = self.df[col].value_counts().head(10)
+
+        try:
+            fig_pie = px.pie(
+                values=value_counts.values,
+                names=value_counts.index.astype(str),
+                title=f"Top Categories in '{col}'"
+            )
+            pie_html = pio.to_html(fig_pie, full_html=False)
+
+            fig_bar = px.bar(
+                x=value_counts.index.astype(str),
+                y=value_counts.values,
+                title=f"Frequency of '{col}'",
+                labels={'x': col, 'y': 'Count'}
+            )
+            bar_html = pio.to_html(fig_bar, full_html=False)
+
+            return {
+                'column_name': col,
+                'pie_chart': pie_html,
+                'bar_chart': bar_html,
+                'top_values': dict(value_counts),
+                'total_unique': int(self.df[col].nunique())
+            }
+        except:
+            return None

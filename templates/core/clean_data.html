@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-lg border-0" style="border-radius: 20px;">
+            <div class="card-header text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 20px 20px 0 0;">
+                <h4 class="mb-0"><i class="bi bi-magic"></i> Clean Dataset: {{ dataset.name }}</h4>
+            </div>
+            <div class="card-body p-4">
+
+                {% if quality %}
+                <div class="alert alert-info">
+                    <h6 class="mb-2"><i class="bi bi-info-circle"></i> Current Data Quality</h6>
+                    <p class="mb-1">Total Rows: <b>{{ quality.total_rows }}</b></p>
+                    <p class="mb-1">Missing Cells: <b>{{ quality.missing_values }} ({{ quality.missing_percentage }}%)</b></p>
+                    <p class="mb-0">Duplicate Rows: <b>{{ quality.duplicate_rows }}</b></p>
+                </div>
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <h5 class="mb-3">Select Cleaning Options:</h5>
+
+                    <div class="form-check mb-3 p-3 border rounded" style="background: #f8f9fa;">
+                        <input class="form-check-input" type="checkbox" name="remove_duplicates" id="removeDuplicates" checked>
+                        <label class="form-check-label" for="removeDuplicates">
+                            <b>Remove Duplicate Rows</b>
+                            <br><small class="text-muted">Exact same rows ko hata do</small>
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3 p-3 border rounded" style="background: #f8f9fa;">
+                        <input class="form-check-input" type="checkbox" name="fill_numeric" id="fillNumeric" checked>
+                        <label class="form-check-label" for="fillNumeric">
+                            <b>Fill Missing Numeric Values</b>
+                            <br><small class="text-muted">Numbers wale columns mein khaali jagah ko average se bharo</small>
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3 p-3 border rounded" style="background: #f8f9fa;">
+                        <input class="form-check-input" type="checkbox" name="fill_text" id="fillText" checked>
+                        <label class="form-check-label" for="fillText">
+                            <b>Fill Missing Text Values</b>
+                            <br><small class="text-muted">Text wale columns mein khaali jagah ko "Unknown" se bharo</small>
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-4 p-3 border rounded" style="background: #fff3cd;">
+                        <input class="form-check-input" type="checkbox" name="drop_missing" id="dropMissing">
+                        <label class="form-check-label" for="dropMissing">
+                            <b>⚠️ Drop Rows with Missing Values</b>
+                            <br><small class="text-muted">Jis row mein koi bhi value missing hai, use poora hata do (aggressive)</small>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-lg w-100 text-white fw-semibold"
+                            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 10px;">
+                        <i class="bi bi-magic"></i> Clean Data & Save as New Dataset
+                    </button>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <a href="{% url 'dashboard_with_id' dataset_id %}" class="text-decoration-none text-muted small">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
