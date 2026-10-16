@@ -57,7 +57,7 @@ jobs:
           SECRET_KEY: 'django-insecure-test-key-for-ci'
           DEBUG: 'True'
           GROQ_API_KEY: 'dummy-test-key'
-          DATABASE_URL: 'mysql://root:Bsp@2026@127.0.0.1:3306/bsp_dashboard_db'
+          DATABASE_URL: 'mysql://root:Bsp%402026@127.0.0.1:3306/bsp_dashboard_db'
         run: |
           python manage.py makemigrations
           python manage.py migrate
@@ -67,7 +67,7 @@ jobs:
           SECRET_KEY: 'django-insecure-test-key-for-ci'
           DEBUG: 'True'
           GROQ_API_KEY: 'dummy-test-key'
-          DATABASE_URL: 'mysql://root:Bsp@2026@127.0.0.1:3306/bsp_dashboard_db'
+          DATABASE_URL: 'mysql://root:Bsp%402026@127.0.0.1:3306/bsp_dashboard_db'
         run: |
           python manage.py test -v 2
 
