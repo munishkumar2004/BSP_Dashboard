@@ -1,12 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{% if status == 'processing' or status == 'pending' %}
+<div class="alert alert-info text-center">
+    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+    <b>Processing video in background...</b> Refresh page in 2-5 minutes.
+    <br><small class="text-muted">Status: {{ status }}</small>
+</div>
+{% elif status and 'failed' in status %}
+<div class="alert alert-danger">❌ <b>Processing failed:</b> {{ status }}</div>
+{% endif %}
+
+{% if analysis %}
 <h3 class="page-title"><i class="bi bi-camera-video-fill text-primary"></i> Video Analysis: {{ video.name }}</h3>
 <p class="page-subtitle">Object detection (YOLO) + Audio transcription (Whisper AI)</p>
 
 <div class="row">
     <div class="col-md-5">
-        <!-- Video Player -->
         <div class="content-card">
             <h5><i class="bi bi-play-circle"></i> Video Player</h5>
             <video controls style="width: 100%; border-radius: 8px;">
@@ -15,7 +26,6 @@
             </video>
         </div>
 
-        <!-- Basic Info -->
         <div class="content-card">
             <h5><i class="bi bi-info-circle text-info"></i> Video Info</h5>
             {% if analysis.basic.error %}
@@ -31,7 +41,6 @@
             {% endif %}
         </div>
 
-        <!-- Unique Objects Summary -->
         {% if analysis.detections.unique_objects %}
         <div class="content-card">
             <h5><i class="bi bi-box-seam text-success"></i> Unique Objects Detected</h5>
@@ -46,7 +55,6 @@
     </div>
 
     <div class="col-md-7">
-        <!-- Object Detection per Frame -->
         <div class="content-card">
             <h5><i class="bi bi-bounding-box text-success"></i> Object Detection (5 Sample Frames)</h5>
             {% if analysis.detections.error %}
@@ -72,7 +80,6 @@
             {% endif %}
         </div>
 
-        <!-- Audio Transcription -->
         <div class="content-card">
             <h5><i class="bi bi-mic-fill text-danger"></i> Audio Transcription (Whisper AI)</h5>
             {% if analysis.transcription.error %}
@@ -97,4 +104,6 @@
         <i class="bi bi-arrow-left"></i> Upload Another Video
     </a>
 </div>
+{% endif %}
+
 {% endblock %}

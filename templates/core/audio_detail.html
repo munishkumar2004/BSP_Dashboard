@@ -1,12 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+{% if status == 'processing' or status == 'pending' %}
+<div class="alert alert-info text-center">
+    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+    <b>Processing audio in background...</b> Refresh page in 1-2 minutes.
+    <br><small class="text-muted">Status: {{ status }}</small>
+</div>
+{% elif status and 'failed' in status %}
+<div class="alert alert-danger">❌ <b>Processing failed:</b> {{ status }}</div>
+{% endif %}
+
+{% if analysis %}
 <h3 class="page-title"><i class="bi bi-soundwave text-primary"></i> Audio Analysis: {{ audio.name }}</h3>
 <p class="page-subtitle">Speech-to-text using OpenAI Whisper + Audio feature extraction</p>
 
 <div class="row">
     <div class="col-md-5">
-        <!-- Audio Player -->
         <div class="content-card">
             <h5><i class="bi bi-play-circle"></i> Audio Player</h5>
             <audio controls style="width: 100%;">
@@ -15,7 +26,6 @@
             </audio>
         </div>
 
-        <!-- Basic Info -->
         <div class="content-card">
             <h5><i class="bi bi-info-circle text-info"></i> File Info</h5>
             <p><b>File Name:</b> {{ analysis.basic.file_name }}</p>
@@ -23,7 +33,6 @@
             <p><b>File Size:</b> {{ analysis.basic.size_kb }} KB</p>
         </div>
 
-        <!-- Audio Features -->
         <div class="content-card">
             <h5><i class="bi bi-bar-chart text-success"></i> Audio Features</h5>
             {% if analysis.features.error %}
@@ -38,7 +47,6 @@
     </div>
 
     <div class="col-md-7">
-        <!-- Transcription -->
         <div class="content-card">
             <h5><i class="bi bi-file-text text-danger"></i> Speech Transcription (Whisper AI)</h5>
             {% if analysis.transcription.error %}
@@ -56,7 +64,6 @@
             {% endif %}
         </div>
 
-        <!-- Waveform -->
         <div class="content-card">
             <h5><i class="bi bi-activity text-warning"></i> Waveform Info</h5>
             <p class="text-muted small">
@@ -75,4 +82,6 @@
         <i class="bi bi-arrow-left"></i> Upload Another Audio
     </a>
 </div>
+{% endif %}
+
 {% endblock %}

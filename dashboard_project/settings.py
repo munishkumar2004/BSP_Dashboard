@@ -20,7 +20,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
-    'jazzmin',  # 🟢 Jazzmin - Django Admin ka modern theme
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -114,11 +114,10 @@ CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 
 
 # ============================================================
-# 🟢 JAZZMIN ADMIN PANEL CONFIGURATION (Dashboard Matching Theme)
+# 🟢 JAZZMIN ADMIN PANEL CONFIGURATION
 # ============================================================
 
 JAZZMIN_SETTINGS = {
-    # Title & Branding
     "site_title": "BSP Dashboard Admin",
     "site_header": "BSP Dashboard",
     "site_brand": "🏭 BSP Dashboard",
@@ -131,7 +130,6 @@ JAZZMIN_SETTINGS = {
     "copyright": "Bhilai Steel Plant © 2026",
     "search_model": ["auth.User", "core.Dataset", "core.ImageDataset", "core.AudioDataset", "core.VideoDataset"],
 
-    # Top Menu
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "Main Dashboard", "url": "/", "new_window": False},
@@ -139,20 +137,17 @@ JAZZMIN_SETTINGS = {
         {"name": "Users", "model": "auth.User"},
     ],
 
-    # User Menu
     "usermenu_links": [
         {"name": "Main Dashboard", "url": "/", "new_window": False},
         {"model": "auth.user"}
     ],
 
-    # Side Menu
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
     "hide_models": [],
     "order_with_respect_to": ["auth", "core", "core.Dataset", "core.ImageDataset", "core.AudioDataset", "core.VideoDataset", "core.MLModel", "core.Report"],
 
-    # Icons
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
@@ -167,14 +162,12 @@ JAZZMIN_SETTINGS = {
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
 
-    # UI Components
     "related_modal_active": True,
-    "custom_css": "admin/css/custom_admin.css",   # 🟢 Custom CSS
+    "custom_css": "admin/css/custom_admin.css",
     "custom_js": None,
     "use_google_fonts_cdn": True,
     "show_ui_builder": False,
 
-    # Change Form
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {
         "auth.user": "collapsible",
@@ -189,8 +182,6 @@ JAZZMIN_UI_TWEAKS = {
     "footer_small_text": False,
     "body_small_text": False,
     "brand_small_text": False,
-
-    # 🎨 Matching Custom Dashboard Colors
     "brand_colour": "navbar-dark",
     "accent": "accent-primary",
     "navbar": "navbar-dark",
@@ -206,11 +197,8 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
-
-    # 🎨 Default theme (colors custom CSS se override honge)
     "theme": "default",
     "dark_mode_theme": None,
-
     "button_classes": {
         "primary": "btn-primary",
         "secondary": "btn-outline-secondary",
@@ -220,3 +208,48 @@ JAZZMIN_UI_TWEAKS = {
         "success": "btn-success"
     }
 }
+
+
+# ============================================================
+# 🟢 CELERY CONFIGURATION (Background Tasks)
+# ============================================================
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_IMPORTS = ('core.tasks',)
+
+# 🟢 Cache (Redis)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://localhost:6379/1',
+    }
+}
+
+
+# ============================================================
+# 🟢 SENTRY ERROR TRACKING
+# ============================================================
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+SENTRY_DSN = config('SENTRY_DSN', default='')
+SENTRY_ENVIRONMENT = config('SENTRY_ENVIRONMENT', default='development')
+SENTRY_TRACES_SAMPLE_RATE = config('SENTRY_TRACES_SAMPLE_RATE', default=0.1, cast=float)
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        environment=SENTRY_ENVIRONMENT,
+        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+        profiles_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+        send_default_pii=True,
+    )
