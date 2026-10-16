@@ -11,4 +11,13 @@ urlpatterns = [
     path('email-report/<int:dataset_id>/', views.email_report_view, name='email_report'),
     path('merge/', views.merge_datasets_view, name='merge_datasets'),
     path('clean/<int:dataset_id>/', views.clean_data_view, name='clean_data'),
+    # 🟢 NEW: Image Analysis
+    path('upload-image/', views.upload_image_view, name='upload_image'),
+    path('image/<int:image_id>/', views.image_detail_view, name='image_detail'),
+    # 🟢 NEW: Audio Analysis
+    path('upload-audio/', views.upload_audio_view, name='upload_audio'),
+    path('audio/<int:audio_id>/', views.audio_detail_view, name='audio_detail'),
+    # 🟢 NEW: Video Analysis
+    path('upload-video/', views.upload_video_view, name='upload_video'),
+    path('video/<int:video_id>/', views.video_detail_view, name='video_detail'),
 ]

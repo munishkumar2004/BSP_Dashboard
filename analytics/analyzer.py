@@ -14,7 +14,10 @@ class DataAnalyzer:
         return self.df.describe().to_dict()
 
     def get_head(self):
-        return self.df.iloc[:, :15].head().to_html(
+        # 🟢 Index ko 1 se start karo (0 ki jagah)
+        df_head = self.df.iloc[:, :15].head().copy()
+        df_head.index = df_head.index + 1
+        return df_head.to_html(
             classes='table table-striped table-bordered table-hover',
             border=0,
             justify='left'
@@ -104,7 +107,6 @@ class DataAnalyzer:
             'quality_score': round(100 - missing_pct, 2)
         }
 
-    # 🟢 NEW: Text Column Analysis
     def get_text_analysis(self):
         text_cols = []
         for col in self.df.columns:

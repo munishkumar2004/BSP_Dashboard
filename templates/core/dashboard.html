@@ -1,6 +1,51 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- 🟢 MULTIMEDIA STATISTICS CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;">
+            <i class="bi bi-image-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+            <h2 class="mt-2 mb-0">{{ image_count }}</h2>
+            <p class="mb-0" style="opacity: 0.9;">Images Analyzed</p>
+            <a href="{% url 'upload_image' %}" class="btn btn-light btn-sm mt-2">
+                <i class="bi bi-plus-circle"></i> Upload Image
+            </a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff;">
+            <i class="bi bi-mic-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+            <h2 class="mt-2 mb-0">{{ audio_count }}</h2>
+            <p class="mb-0" style="opacity: 0.9;">Audios Analyzed</p>
+            <a href="{% url 'upload_audio' %}" class="btn btn-light btn-sm mt-2">
+                <i class="bi bi-plus-circle"></i> Upload Audio
+            </a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff;">
+            <i class="bi bi-camera-video-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+            <h2 class="mt-2 mb-0">{{ video_count }}</h2>
+            <p class="mb-0" style="opacity: 0.9;">Videos Analyzed</p>
+            <a href="{% url 'upload_video' %}" class="btn btn-light btn-sm mt-2">
+                <i class="bi bi-plus-circle"></i> Upload Video
+            </a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #fff;">
+            <i class="bi bi-database-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+            <h2 class="mt-2 mb-0">{{ user.dataset_set.count }}</h2>
+            <p class="mb-0" style="opacity: 0.9;">Datasets Uploaded</p>
+            <a href="{% url 'dataset_list' %}" class="btn btn-light btn-sm mt-2">
+                <i class="bi bi-folder2-open"></i> My Datasets
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Header -->
 <div class="row">
     <div class="col-md-12 text-center mb-4">
         <h2>Welcome to BSP Dashboard</h2>
@@ -82,7 +127,7 @@
     </div>
 </div>
 
-<!-- 🟢 Clean Data Button -->
+<!-- Clean Data Button -->
 <div class="text-center mt-4">
     <a href="{% url 'clean_data' dataset_id %}" 
        class="btn btn-success btn-lg px-4"
@@ -101,7 +146,7 @@
     </div>
 {% endif %}
 
-<!-- Time-Series Trend Chart -->
+<!-- Time-Series Trend -->
 {% if time_chart %}
     <h5 class="mt-4">📈 Time-Series Trend:</h5>
     <div class="border p-3 bg-white">

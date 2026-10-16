@@ -1,3 +1,8 @@
+from .models import Dataset, ImageDataset, AudioDataset, VideoDataset
+from analytics.video_analyzer import VideoAnalyzer
+from analytics.audio_analyzer import AudioAnalyzer
+from .models import Dataset, ImageDataset, AudioDataset, VideoDataset
+from analytics.image_analyzer import ImageAnalyzer
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
@@ -27,6 +32,11 @@ def dashboard_view(request, dataset_id=None):
         latest_dataset = get_object_or_404(Dataset, id=dataset_id)
     else:
         latest_dataset = Dataset.objects.last()
+
+    # 🟢 Multimedia counts
+    context['image_count'] = ImageDataset.objects.count()
+    context['audio_count'] = AudioDataset.objects.count()
+    context['video_count'] = VideoDataset.objects.count()
 
     if latest_dataset:
         try:
@@ -234,4 +244,76 @@ def clean_data_view(request, dataset_id):
         'dataset': latest_dataset,
         'dataset_id': dataset_id,
         'quality': analyzer.get_data_quality()
+    })
+
+# 🟢 IMAGE UPLOAD VIEW
+@login_required(login_url='login')
+def upload_image_view(request):
+    if request.method == 'POST' and request.FILES.get('image_file'):
+        uploaded_file = request.FILES['image_file']
+        img = ImageDataset(name=uploaded_file.name, image=uploaded_file)
+        if request.user.is_authenticated:
+            img.user = request.user
+        img.save()
+        return redirect('image_detail', image_id=img.id)
+    return render(request, 'core/upload_image.html')
+
+
+# 🟢 IMAGE DETAIL VIEW
+@login_required(login_url='login')
+def image_detail_view(request, image_id):
+    img = get_object_or_404(ImageDataset, id=image_id)
+    analyzer = ImageAnalyzer(img.image.path)
+    analysis = analyzer.get_analysis()
+    return render(request, 'core/image_detail.html', {
+        'image': img,
+        'analysis': analysis
+    })
+
+# 🟢 AUDIO UPLOAD VIEW
+@login_required(login_url='login')
+def upload_audio_view(request):
+    if request.method == 'POST' and request.FILES.get('audio_file'):
+        uploaded_file = request.FILES['audio_file']
+        audio = AudioDataset(name=uploaded_file.name, audio=uploaded_file)
+        if request.user.is_authenticated:
+            audio.user = request.user
+        audio.save()
+        return redirect('audio_detail', audio_id=audio.id)
+    return render(request, 'core/upload_audio.html')
+
+
+# 🟢 AUDIO DETAIL VIEW
+@login_required(login_url='login')
+def audio_detail_view(request, audio_id):
+    audio = get_object_or_404(AudioDataset, id=audio_id)
+    analyzer = AudioAnalyzer(audio.audio.path)
+    analysis = analyzer.get_analysis()
+    return render(request, 'core/audio_detail.html', {
+        'audio': audio,
+        'analysis': analysis
+    })
+
+# 🟢 VIDEO UPLOAD VIEW
+@login_required(login_url='login')
+def upload_video_view(request):
+    if request.method == 'POST' and request.FILES.get('video_file'):
+        uploaded_file = request.FILES['video_file']
+        video = VideoDataset(name=uploaded_file.name, video=uploaded_file)
+        if request.user.is_authenticated:
+            video.user = request.user
+        video.save()
+        return redirect('video_detail', video_id=video.id)
+    return render(request, 'core/upload_video.html')
+
+
+# 🟢 VIDEO DETAIL VIEW
+@login_required(login_url='login')
+def video_detail_view(request, video_id):
+    video = get_object_or_404(VideoDataset, id=video_id)
+    analyzer = VideoAnalyzer(video.video.path)
+    analysis = analyzer.get_analysis()
+    return render(request, 'core/video_detail.html', {
+        'video': video,
+        'analysis': analysis
     })

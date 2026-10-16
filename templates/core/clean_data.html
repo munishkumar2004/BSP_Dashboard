@@ -27,7 +27,7 @@
                         <input class="form-check-input" type="checkbox" name="remove_duplicates" id="removeDuplicates" checked>
                         <label class="form-check-label" for="removeDuplicates">
                             <b>Remove Duplicate Rows</b>
-                            <br><small class="text-muted">Exact same rows ko hata do</small>
+                            <br><small class="text-muted">Delete rows that are exact copies of other rows</small>
                         </label>
                     </div>
 
@@ -35,7 +35,7 @@
                         <input class="form-check-input" type="checkbox" name="fill_numeric" id="fillNumeric" checked>
                         <label class="form-check-label" for="fillNumeric">
                             <b>Fill Missing Numeric Values</b>
-                            <br><small class="text-muted">Numbers wale columns mein khaali jagah ko average se bharo</small>
+                            <br><small class="text-muted">Replace empty cells in numeric columns with the column average</small>
                         </label>
                     </div>
 
@@ -43,7 +43,7 @@
                         <input class="form-check-input" type="checkbox" name="fill_text" id="fillText" checked>
                         <label class="form-check-label" for="fillText">
                             <b>Fill Missing Text Values</b>
-                            <br><small class="text-muted">Text wale columns mein khaali jagah ko "Unknown" se bharo</small>
+                            <br><small class="text-muted">Replace empty cells in text columns with "Unknown"</small>
                         </label>
                     </div>
 
@@ -51,7 +51,7 @@
                         <input class="form-check-input" type="checkbox" name="drop_missing" id="dropMissing">
                         <label class="form-check-label" for="dropMissing">
                             <b>⚠️ Drop Rows with Missing Values</b>
-                            <br><small class="text-muted">Jis row mein koi bhi value missing hai, use poora hata do (aggressive)</small>
+                            <br><small class="text-muted">Delete entire rows that contain any missing value (aggressive)</small>
                         </label>
                     </div>
 

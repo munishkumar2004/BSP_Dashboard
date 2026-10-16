@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="page-title"><i class="bi bi-soundwave text-primary"></i> Audio Analysis: {{ audio.name }}</h3>
+<p class="page-subtitle">Speech-to-text using OpenAI Whisper + Audio feature extraction</p>
+
+<div class="row">
+    <div class="col-md-5">
+        <!-- Audio Player -->
+        <div class="content-card">
+            <h5><i class="bi bi-play-circle"></i> Audio Player</h5>
+            <audio controls style="width: 100%;">
+                <source src="{{ audio.audio.url }}" type="audio/mpeg">
+                Your browser does not support audio.
+            </audio>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="content-card">
+            <h5><i class="bi bi-info-circle text-info"></i> File Info</h5>
+            <p><b>File Name:</b> {{ analysis.basic.file_name }}</p>
+            <p><b>Format:</b> {{ analysis.basic.format }}</p>
+            <p><b>File Size:</b> {{ analysis.basic.size_kb }} KB</p>
+        </div>
+
+        <!-- Audio Features -->
+        <div class="content-card">
+            <h5><i class="bi bi-bar-chart text-success"></i> Audio Features</h5>
+            {% if analysis.features.error %}
+                <div class="alert alert-warning">{{ analysis.features.error }}</div>
+            {% else %}
+                <p><b>Duration:</b> {{ analysis.features.duration_sec }} seconds</p>
+                <p><b>Sample Rate:</b> {{ analysis.features.sample_rate }} Hz</p>
+                <p><b>Tempo:</b> {{ analysis.features.tempo_bpm }} BPM</p>
+                <p><b>Total Samples:</b> {{ analysis.features.samples }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <!-- Transcription -->
+        <div class="content-card">
+            <h5><i class="bi bi-file-text text-danger"></i> Speech Transcription (Whisper AI)</h5>
+            {% if analysis.transcription.error %}
+                <div class="alert alert-warning">{{ analysis.transcription.error }}</div>
+            {% elif analysis.transcription.text %}
+                <div class="mb-3">
+                    <span class="badge bg-primary">Language: {{ analysis.transcription.language|upper }}</span>
+                    <span class="badge bg-success">Words: {{ analysis.transcription.word_count }}</span>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #dc3545;">
+                    <p style="white-space: pre-wrap; line-height: 1.7; margin: 0;">{{ analysis.transcription.text }}</p>
+                </div>
+            {% else %}
+                <p class="text-muted">No speech detected in the audio.</p>
+            {% endif %}
+        </div>
+
+        <!-- Waveform -->
+        <div class="content-card">
+            <h5><i class="bi bi-activity text-warning"></i> Waveform Info</h5>
+            <p class="text-muted small">
+                The waveform visualization shows the audio amplitude over time. 
+                Higher peaks indicate louder sections, lower peaks indicate quieter sections.
+            </p>
+            <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
+                <span><i class="bi bi-music-note-beamed" style="font-size: 30px;"></i> Audio Analyzed</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-3">
+    <a href="{% url 'upload_audio' %}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i> Upload Another Audio
+    </a>
+</div>
+{% endblock %}

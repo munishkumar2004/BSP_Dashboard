@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="page-title"><i class="bi bi-camera-video-fill text-primary"></i> Video Analysis: {{ video.name }}</h3>
+<p class="page-subtitle">Object detection (YOLO) + Audio transcription (Whisper AI)</p>
+
+<div class="row">
+    <div class="col-md-5">
+        <!-- Video Player -->
+        <div class="content-card">
+            <h5><i class="bi bi-play-circle"></i> Video Player</h5>
+            <video controls style="width: 100%; border-radius: 8px;">
+                <source src="{{ video.video.url }}" type="video/mp4">
+                Your browser does not support video.
+            </video>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="content-card">
+            <h5><i class="bi bi-info-circle text-info"></i> Video Info</h5>
+            {% if analysis.basic.error %}
+                <div class="alert alert-warning">{{ analysis.basic.error }}</div>
+            {% else %}
+                <p><b>File Name:</b> {{ analysis.basic.file_name }}</p>
+                <p><b>Format:</b> {{ analysis.basic.format }}</p>
+                <p><b>Size:</b> {{ analysis.basic.size_kb }} KB</p>
+                <p><b>Duration:</b> {{ analysis.basic.duration_sec }} seconds</p>
+                <p><b>Resolution:</b> {{ analysis.basic.resolution }}</p>
+                <p><b>FPS:</b> {{ analysis.basic.fps }}</p>
+                <p><b>Total Frames:</b> {{ analysis.basic.frame_count }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Unique Objects Summary -->
+        {% if analysis.detections.unique_objects %}
+        <div class="content-card">
+            <h5><i class="bi bi-box-seam text-success"></i> Unique Objects Detected</h5>
+            <p><b>Total Types:</b> <span class="badge bg-success">{{ analysis.detections.total_unique }}</span></p>
+            <div>
+                {% for obj in analysis.detections.unique_objects %}
+                    <span class="badge bg-primary me-1 mb-1">{{ obj|title }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-7">
+        <!-- Object Detection per Frame -->
+        <div class="content-card">
+            <h5><i class="bi bi-bounding-box text-success"></i> Object Detection (5 Sample Frames)</h5>
+            {% if analysis.detections.error %}
+                <div class="alert alert-warning">{{ analysis.detections.error }}</div>
+            {% else %}
+                {% for frame in analysis.detections.detections %}
+                    <div class="mb-3 p-3" style="background: #f8f9fa; border-radius: 8px;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span><b>Timestamp:</b> {{ frame.timestamp }} sec (Frame #{{ frame.frame_index }})</span>
+                            <span class="badge bg-info">{{ frame.count }} objects</span>
+                        </div>
+                        {% if frame.objects %}
+                            {% for obj in frame.objects %}
+                                <span class="badge bg-secondary me-1 mb-1">
+                                    {{ obj.label|title }} ({{ obj.confidence }}%)
+                                </span>
+                            {% endfor %}
+                        {% else %}
+                            <small class="text-muted">No objects detected in this frame</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Audio Transcription -->
+        <div class="content-card">
+            <h5><i class="bi bi-mic-fill text-danger"></i> Audio Transcription (Whisper AI)</h5>
+            {% if analysis.transcription.error %}
+                <div class="alert alert-warning">{{ analysis.transcription.error }}</div>
+            {% elif analysis.transcription.text %}
+                <div class="mb-2">
+                    <span class="badge bg-primary">Language: {{ analysis.transcription.language|upper }}</span>
+                    <span class="badge bg-success">Words: {{ analysis.transcription.word_count }}</span>
+                </div>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <p style="white-space: pre-wrap; margin: 0;">{{ analysis.transcription.text }}</p>
+                </div>
+            {% else %}
+                <p class="text-muted">No speech detected in video.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-3">
+    <a href="{% url 'upload_video' %}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i> Upload Another Video
+    </a>
+</div>
+{% endblock %}

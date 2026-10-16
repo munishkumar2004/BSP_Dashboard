@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h3 class="page-title"><i class="bi bi-image text-primary"></i> Image Analysis: {{ image.name }}</h3>
+<p class="page-subtitle">Automated analysis using YOLO, OCR, and Computer Vision</p>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="content-card">
+            <h5><i class="bi bi-card-image"></i> Original Image</h5>
+            <img src="{{ image.image.url }}" class="img-fluid rounded" alt="Uploaded Image">
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <!-- Basic Info -->
+        <div class="content-card">
+            <h5><i class="bi bi-info-circle text-info"></i> Basic Info</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><b>Dimensions:</b> {{ analysis.basic.width }} × {{ analysis.basic.height }}</p>
+                    <p><b>Format:</b> {{ analysis.basic.format }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><b>Mode:</b> {{ analysis.basic.mode }}</p>
+                    <p><b>File Size:</b> {{ analysis.basic.size_kb }} KB</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Colors -->
+        <div class="content-card">
+            <h5><i class="bi bi-palette text-warning"></i> Color Analysis</h5>
+            <p><b>Average Color:</b> 
+                <span style="display: inline-block; width: 30px; height: 20px; background: {{ analysis.colors.average_hex }}; border-radius: 4px; border: 1px solid #ccc; vertical-align: middle;"></span>
+                {{ analysis.colors.average_hex }}
+            </p>
+            <p><b>Top 5 Colors:</b></p>
+            <div>
+                {% for color in analysis.colors.top_colors %}
+                    <span style="display: inline-block; width: 40px; height: 40px; background: {{ color }}; border-radius: 8px; margin-right: 5px; border: 1px solid #ccc;" title="{{ color }}"></span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Object Detection -->
+        <div class="content-card">
+            <h5><i class="bi bi-bounding-box text-success"></i> Object Detection (YOLO)</h5>
+            {% if analysis.objects.error %}
+                <div class="alert alert-warning">{{ analysis.objects.error }}</div>
+            {% elif analysis.objects.total > 0 %}
+                <p><b>Total Objects Detected:</b> <span class="badge bg-success">{{ analysis.objects.total }}</span></p>
+                <ul class="list-group">
+                    {% for obj in analysis.objects.objects %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span><i class="bi bi-box"></i> {{ obj.label|title }}</span>
+                            <span class="badge bg-primary">{{ obj.confidence }}%</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">No objects detected.</p>
+            {% endif %}
+        </div>
+
+        <!-- OCR Text Extraction -->
+        <div class="content-card">
+            <h5><i class="bi bi-file-text text-danger"></i> Text Extraction (OCR)</h5>
+            {% if analysis.text.error %}
+                <div class="alert alert-warning">{{ analysis.text.error }}</div>
+            {% elif analysis.text.text %}
+                <p><b>Words Found:</b> <span class="badge bg-primary">{{ analysis.text.word_count }}</span></p>
+                <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; white-space: pre-wrap;">{{ analysis.text.text }}</pre>
+            {% else %}
+                <p class="text-muted">No text detected in image.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-3">
+    <a href="{% url 'upload_image' %}" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i> Upload Another Image
+    </a>
+</div>
+{% endblock %}

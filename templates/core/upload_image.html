@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="content-card">
+            <h4 class="page-title"><i class="bi bi-image text-primary"></i> Upload Image</h4>
+            <p class="page-subtitle">Upload an image for automatic analysis</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Choose Image</label>
+                    <input type="file" name="image_file" class="form-control" 
+                           accept="image/*" required>
+                    <small class="text-muted">Supported: JPG, PNG, WEBP, BMP</small>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-upload"></i> Upload & Analyze
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

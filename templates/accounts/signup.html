@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
     <div class="col-md-5">
-        <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="card border-0 shadow-lg" style="border-radius: 20px;">
             <div class="card-body p-5">
+                
                 <!-- Icon and Heading -->
                 <div class="text-center mb-4">
                     <div class="d-inline-flex align-items-center justify-content-center mb-3" 
@@ -13,6 +14,27 @@
                     </div>
                     <h3 class="fw-bold mb-1">Create Account</h3>
                     <p class="text-muted small">Join BSP Dashboard today</p>
+                </div>
+
+                <!-- 🟢 Social Signup Buttons -->
+                <div class="d-grid gap-2 mb-4">
+                    <button type="button" class="btn btn-outline-dark btn-lg fw-semibold" 
+                            onclick="alert('Google Signup is coming soon! BSP SSO integration pending.')"
+                            style="border-radius: 10px;">
+                        <i class="bi bi-google"></i> Continue with Google
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg fw-semibold" 
+                            onclick="alert('BSP SSO integration pending. Please contact your IT department.')"
+                            style="border-radius: 10px;">
+                        <i class="bi bi-building"></i> Continue with SSO
+                    </button>
+                </div>
+
+                <!-- Divider -->
+                <div class="d-flex align-items-center mb-4">
+                    <hr class="flex-grow-1">
+                    <span class="px-3 text-muted small">OR SIGNUP WITH EMAIL</span>
+                    <hr class="flex-grow-1">
                 </div>
 
                 <!-- Signup Form -->
@@ -24,17 +46,31 @@
                             <i class="bi bi-person-fill text-success"></i> Username
                         </label>
                         <input type="text" name="username" class="form-control form-control-lg" 
-                               placeholder="Choose a username" required 
-                               style="border-radius: 10px;">
+                               placeholder="Choose a username" required style="border-radius: 10px;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-envelope-fill text-success"></i> Email
+                        </label>
+                        <input type="email" name="email" class="form-control form-control-lg" 
+                               placeholder="Enter your email" style="border-radius: 10px;">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold">
                             <i class="bi bi-key-fill text-success"></i> Password
                         </label>
-                        <input type="password" name="password1" class="form-control form-control-lg" 
-                               placeholder="Minimum 8 characters" required 
-                               style="border-radius: 10px;">
+                        <div class="position-relative">
+                            <input type="password" name="password1" id="signupPassword" 
+                                   class="form-control form-control-lg" 
+                                   placeholder="Minimum 8 characters" required 
+                                   style="border-radius: 10px; padding-right: 45px;">
+                            <button type="button" onclick="toggleSignupPassword()" 
+                                    class="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-transparent">
+                                <i class="bi bi-eye-slash" id="signupEyeIcon" style="font-size: 18px; color: #28a745;"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -52,7 +88,7 @@
                                    border: none; border-radius: 10px; transition: all 0.3s ease;"
                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(40, 167, 69, 0.5)';"
                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                        <i class="bi bi-person-plus"></i> Create Account
+                        <i class="bi bi-person-plus"></i> Signup with Email
                     </button>
                 </form>
 
@@ -60,8 +96,7 @@
                 <div class="text-center mt-4">
                     <p class="text-muted small mb-0">
                         Already have an account? 
-                        <a href="{% url 'login' %}" class="fw-semibold text-decoration-none" 
-                           style="color: #28a745;">
+                        <a href="{% url 'login' %}" class="fw-semibold text-decoration-none" style="color: #28a745;">
                             Login <i class="bi bi-arrow-right"></i>
                         </a>
                     </p>
@@ -70,4 +105,20 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleSignupPassword() {
+    var field = document.getElementById('signupPassword');
+    var icon = document.getElementById('signupEyeIcon');
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    }
+}
+</script>
 {% endblock %}
