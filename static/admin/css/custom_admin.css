@@ -1,0 +1,145 @@
+/* 🎨 BSP Dashboard Admin - Custom CSS (Matches Main Dashboard) */
+
+/* 🟢 Top Navbar - Dark Blue-Grey Gradient */
+.navbar,
+.main-header.navbar,
+.navbar-dark {
+    background: linear-gradient(135deg, #2c3e50 0%, #4a5568 100%) !important;
+    border-bottom: none !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+}
+
+.navbar .nav-link,
+.navbar-brand,
+.navbar a {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+.navbar .nav-link:hover {
+    background: rgba(255,255,255,0.15) !important;
+    color: #fff !important;
+    border-radius: 6px;
+}
+
+/* 🟢 Left Sidebar - Same Dark Blue-Grey */
+.main-sidebar,
+.sidebar-dark-primary,
+.sidebar {
+    background: #2c3e50 !important;
+}
+
+/* Sidebar Headings/Section titles */
+.sidebar .nav-header,
+.nav-sidebar .nav-header {
+    color: rgba(255,255,255,0.5) !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    padding: 10px 15px !important;
+}
+
+/* Sidebar Menu Items */
+.sidebar .nav-link,
+.nav-sidebar .nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
+}
+
+.sidebar .nav-link:hover,
+.nav-sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.05) !important;
+    color: #fff !important;
+    border-left-color: #667eea !important;
+}
+
+/* Active/Selected Menu Item */
+.sidebar .nav-link.active,
+.nav-sidebar .nav-link.active {
+    background: rgba(102, 126, 234, 0.2) !important;
+    color: #fff !important;
+    border-left-color: #667eea !important;
+    font-weight: 600 !important;
+}
+
+/* Sidebar Icons */
+.sidebar .nav-icon,
+.nav-sidebar .nav-icon {
+    color: #667eea !important;
+}
+
+/* 🟢 Main Content Background */
+.content-wrapper,
+.content {
+    background: #f4f6f9 !important;
+}
+
+/* 🟢 Cards - White with Soft Shadow */
+.card {
+    border-radius: 12px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+    border: none !important;
+}
+
+.card-header {
+    background: #fff !important;
+    border-bottom: 1px solid #e9ecef !important;
+    font-weight: 600 !important;
+}
+
+/* 🟢 Buttons - Purple Primary */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* 🟢 Login Page Background */
+.login-page,
+.register-page {
+    background: linear-gradient(135deg, #2c3e50 0%, #4a5568 100%) !important;
+}
+
+.login-box .card {
+    border-radius: 15px !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+}
+
+/* 🟢 Dashboard Module Cards */
+.small-box {
+    border-radius: 12px !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1) !important;
+}
+
+/* 🟢 Tables */
+.table thead th {
+    background: #2c3e50 !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+.table-hover tbody tr:hover {
+    background: rgba(102, 126, 234, 0.05) !important;
+}
+
+/* 🟢 Form Inputs */
+.form-control:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+}
+
+/* 🟢 Breadcrumbs */
+.breadcrumb {
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.breadcrumb-item a {
+    color: #667eea !important;
+}

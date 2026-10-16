@@ -114,7 +114,7 @@ CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 
 
 # ============================================================
-# 🟢 JAZZMIN ADMIN PANEL CONFIGURATION
+# 🟢 JAZZMIN ADMIN PANEL CONFIGURATION (Dashboard Matching Theme)
 # ============================================================
 
 JAZZMIN_SETTINGS = {
@@ -129,19 +129,19 @@ JAZZMIN_SETTINGS = {
     "site_icon": None,
     "welcome_sign": "Welcome to BSP Dashboard Administration",
     "copyright": "Bhilai Steel Plant © 2026",
-    "search_model": ["auth.User", "core.Dataset"],
+    "search_model": ["auth.User", "core.Dataset", "core.ImageDataset", "core.AudioDataset", "core.VideoDataset"],
 
     # Top Menu
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
-        {"name": "Dashboard", "url": "/", "new_window": False},
-        {"name": "View Site", "url": "/", "new_window": True},
-        {"model": "auth.User"},
+        {"name": "Main Dashboard", "url": "/", "new_window": False},
+        {"name": "Datasets", "model": "core.Dataset"},
+        {"name": "Users", "model": "auth.User"},
     ],
 
     # User Menu
     "usermenu_links": [
-        {"name": "Dashboard", "url": "/", "new_window": False},
+        {"name": "Main Dashboard", "url": "/", "new_window": False},
         {"model": "auth.user"}
     ],
 
@@ -150,7 +150,7 @@ JAZZMIN_SETTINGS = {
     "navigation_expanded": True,
     "hide_apps": [],
     "hide_models": [],
-    "order_with_respect_to": ["auth", "core", "accounts", "analytics", "ml_engine"],
+    "order_with_respect_to": ["auth", "core", "core.Dataset", "core.ImageDataset", "core.AudioDataset", "core.VideoDataset", "core.MLModel", "core.Report"],
 
     # Icons
     "icons": {
@@ -158,6 +158,9 @@ JAZZMIN_SETTINGS = {
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
         "core.Dataset": "fas fa-database",
+        "core.ImageDataset": "fas fa-image",
+        "core.AudioDataset": "fas fa-microphone",
+        "core.VideoDataset": "fas fa-video",
         "core.MLModel": "fas fa-brain",
         "core.Report": "fas fa-file-pdf",
     },
@@ -166,7 +169,7 @@ JAZZMIN_SETTINGS = {
 
     # UI Components
     "related_modal_active": True,
-    "custom_css": None,
+    "custom_css": "admin/css/custom_admin.css",   # 🟢 Custom CSS
     "custom_js": None,
     "use_google_fonts_cdn": True,
     "show_ui_builder": False,
@@ -180,15 +183,18 @@ JAZZMIN_SETTINGS = {
     "language_chooser": False,
 }
 
+
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
     "footer_small_text": False,
     "body_small_text": False,
     "brand_small_text": False,
-    "brand_colour": "navbar-primary",
+
+    # 🎨 Matching Custom Dashboard Colors
+    "brand_colour": "navbar-dark",
     "accent": "accent-primary",
     "navbar": "navbar-dark",
-    "no_navbar_border": False,
+    "no_navbar_border": True,
     "navbar_fixed": True,
     "layout_boxed": False,
     "footer_fixed": False,
@@ -200,11 +206,14 @@ JAZZMIN_UI_TWEAKS = {
     "sidebar_nav_compact_style": False,
     "sidebar_nav_legacy_style": False,
     "sidebar_nav_flat_style": False,
+
+    # 🎨 Default theme (colors custom CSS se override honge)
     "theme": "default",
     "dark_mode_theme": None,
+
     "button_classes": {
         "primary": "btn-primary",
-        "secondary": "btn-secondary",
+        "secondary": "btn-outline-secondary",
         "info": "btn-info",
         "warning": "btn-warning",
         "danger": "btn-danger",

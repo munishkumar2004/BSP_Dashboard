@@ -4,7 +4,7 @@
 <!-- 🟢 MULTIMEDIA STATISTICS CARDS -->
 <div class="row g-3 mb-4">
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff;">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none;">
             <i class="bi bi-image-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
             <h2 class="mt-2 mb-0">{{ image_count }}</h2>
             <p class="mb-0" style="opacity: 0.9;">Images Analyzed</p>
@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff;">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; border: none;">
             <i class="bi bi-mic-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
             <h2 class="mt-2 mb-0">{{ audio_count }}</h2>
             <p class="mb-0" style="opacity: 0.9;">Audios Analyzed</p>
@@ -24,7 +24,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff;">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; border: none;">
             <i class="bi bi-camera-video-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
             <h2 class="mt-2 mb-0">{{ video_count }}</h2>
             <p class="mb-0" style="opacity: 0.9;">Videos Analyzed</p>
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #fff;">
+        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #fff; border: none;">
             <i class="bi bi-database-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
             <h2 class="mt-2 mb-0">{{ user.dataset_set.count }}</h2>
             <p class="mb-0" style="opacity: 0.9;">Datasets Uploaded</p>
@@ -45,144 +45,138 @@
     </div>
 </div>
 
-<!-- Welcome Header -->
-<div class="row">
-    <div class="col-md-12 text-center mb-4">
-        <h2>Welcome to BSP Dashboard</h2>
-        <p class="text-muted">Upload your dataset to start analysis</p>
-    </div>
+<!-- 🟢 WELCOME HEADER -->
+<div class="content-card text-center mb-4">
+    <h3 class="page-title mb-1">Welcome to BSP Dashboard</h3>
+    <p class="page-subtitle mb-0">Upload your dataset to start analysis</p>
 </div>
 
-<!-- Upload Form -->
+<!-- 🟢 UPLOAD DATASET -->
 <div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Upload Dataset (CSV/Excel)</h4>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{% url 'upload_dataset' %}" enctype="multipart/form-data" onsubmit="showSpinner('uploadBtn', 'Uploading...')">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="dataset_file" class="form-label">Choose File</label>
+    <div class="col-md-7">
+        <div class="content-card">
+            <h5 class="mb-3"><i class="bi bi-cloud-upload text-primary"></i> Upload Dataset (CSV/Excel)</h5>
+            <form method="POST" action="{% url 'upload_dataset' %}" enctype="multipart/form-data" onsubmit="showSpinner('uploadBtn', 'Uploading...')">
+                {% csrf_token %}
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-8">
+                        <label class="form-label small fw-semibold text-muted">Choose File</label>
                         <input type="file" name="dataset_file" class="form-control" accept=".csv, .xlsx" required>
                     </div>
-                    <button type="submit" id="uploadBtn" class="btn btn-success w-100">Upload & Analyze</button>
-                </form>
-            </div>
+                    <div class="col-md-4">
+                        <button type="submit" id="uploadBtn" class="btn btn-success w-100">
+                            <i class="bi bi-upload"></i> Upload & Analyze
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 {% if dataset_name %}
-<hr class="my-5">
-<h3 class="text-center text-success">Analysis of: {{ dataset_name }}</h3>
+<!-- 🟢 ANALYSIS SECTION -->
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <div>
+        <h4 class="page-title mb-0">📊 Analysis: <span class="text-success">{{ dataset_name }}</span></h4>
+        <p class="page-subtitle mb-0">Automated analysis using Pandas, Plotly and Machine Learning</p>
+    </div>
+    <a href="{% url 'dataset_list' %}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Datasets
+    </a>
+</div>
 
-<!-- AI Summary -->
-<div class="alert alert-info mt-4 shadow-sm">
-    <h4 class="alert-heading">🤖 AI Generated Insights</h4>
-    <hr>
+<!-- AI Summary Card -->
+<div class="content-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3;">
+    <h5 class="mb-2"><i class="bi bi-robot text-primary"></i> AI Generated Insights</h5>
     <p class="mb-0">{{ ai_summary }}</p>
 </div>
 
 <!-- Data Quality Report -->
 {% if quality %}
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h5>📋 Data Quality Report</h5>
-        <div class="row text-center g-3">
-            <div class="col-md-3">
-                <div class="card bg-info text-white shadow-sm">
-                    <div class="card-body">
-                        <h4>{{ quality.total_rows }}</h4>
-                        <p class="mb-0">Total Rows</p>
-                    </div>
-                </div>
+<div class="content-card">
+    <h5 class="mb-3"><i class="bi bi-clipboard-check text-primary"></i> Data Quality Report</h5>
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="text-center p-3" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: #fff; border-radius: 10px;">
+                <i class="bi bi-table" style="font-size: 1.8rem; opacity: 0.7;"></i>
+                <h3 class="mt-2 mb-0">{{ quality.total_rows }}</h3>
+                <p class="mb-0 small" style="opacity: 0.9;">Total Rows</p>
             </div>
-            <div class="col-md-3">
-                <div class="card bg-warning text-dark shadow-sm">
-                    <div class="card-body">
-                        <h4>{{ quality.missing_values }}</h4>
-                        <p class="mb-0">Missing Cells ({{ quality.missing_percentage }}%)</p>
-                    </div>
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center p-3" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #fff; border-radius: 10px;">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.8rem; opacity: 0.7;"></i>
+                <h3 class="mt-2 mb-0">{{ quality.missing_values }}</h3>
+                <p class="mb-0 small" style="opacity: 0.9;">Missing ({{ quality.missing_percentage }}%)</p>
             </div>
-            <div class="col-md-3">
-                <div class="card bg-danger text-white shadow-sm">
-                    <div class="card-body">
-                        <h4>{{ quality.duplicate_rows }}</h4>
-                        <p class="mb-0">Duplicate Rows</p>
-                    </div>
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center p-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: #fff; border-radius: 10px;">
+                <i class="bi bi-files" style="font-size: 1.8rem; opacity: 0.7;"></i>
+                <h3 class="mt-2 mb-0">{{ quality.duplicate_rows }}</h3>
+                <p class="mb-0 small" style="opacity: 0.9;">Duplicates</p>
             </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white shadow-sm">
-                    <div class="card-body">
-                        <h4>{{ quality.quality_score }}%</h4>
-                        <p class="mb-0">Quality Score</p>
-                    </div>
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="text-center p-3" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: #fff; border-radius: 10px;">
+                <i class="bi bi-check-circle" style="font-size: 1.8rem; opacity: 0.7;"></i>
+                <h3 class="mt-2 mb-0">{{ quality.quality_score }}%</h3>
+                <p class="mb-0 small" style="opacity: 0.9;">Quality Score</p>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Clean Data Button -->
-<div class="text-center mt-4">
-    <a href="{% url 'clean_data' dataset_id %}" 
-       class="btn btn-success btn-lg px-4"
-       onclick="showSpinner('cleanBtn', 'Cleaning...')"
-       id="cleanBtn">
-        <i class="bi bi-magic"></i> Clean Data
-    </a>
+    <div class="text-center mt-4">
+        <a href="{% url 'clean_data' dataset_id %}" 
+           class="btn btn-success px-4"
+           onclick="showSpinner('cleanBtn', 'Cleaning...')"
+           id="cleanBtn">
+            <i class="bi bi-magic"></i> Clean Data
+        </a>
+    </div>
 </div>
 {% endif %}
 
 <!-- Scatter Plot -->
 {% if chart %}
-    <h5 class="mt-4">Data Chart (Plotly Scatter Plot):</h5>
-    <div class="border p-3 bg-white">
-        {{ chart|safe }}
-    </div>
+<div class="content-card">
+    <h5><i class="bi bi-graph-up text-primary"></i> Scatter Plot</h5>
+    <div>{{ chart|safe }}</div>
+</div>
 {% endif %}
 
 <!-- Time-Series Trend -->
 {% if time_chart %}
-    <h5 class="mt-4">📈 Time-Series Trend:</h5>
-    <div class="border p-3 bg-white">
-        {{ time_chart|safe }}
-    </div>
+<div class="content-card">
+    <h5><i class="bi bi-graph-up-arrow text-primary"></i> Time-Series Trend</h5>
+    <div>{{ time_chart|safe }}</div>
+</div>
 {% endif %}
 
 <!-- Correlation Heatmap -->
 {% if correlation_chart %}
-    <h5 class="mt-4">🔥 Correlation Heatmap:</h5>
-    <div class="border p-3 bg-white">
-        {{ correlation_chart|safe }}
-    </div>
+<div class="content-card">
+    <h5><i class="bi bi-fire text-danger"></i> Correlation Heatmap</h5>
+    <div>{{ correlation_chart|safe }}</div>
+</div>
 {% endif %}
 
 <!-- Text Column Analysis -->
 {% if text_analysis %}
-<div class="mt-5">
-    <h5 class="mt-4">📝 Text Column Analysis: <span class="text-primary">{{ text_analysis.column_name }}</span></h5>
+<div class="content-card">
+    <h5><i class="bi bi-file-text text-primary"></i> Text Analysis: <span class="text-primary">{{ text_analysis.column_name }}</span></h5>
     <p class="text-muted small">Total Unique Values: <b>{{ text_analysis.total_unique }}</b></p>
-
     <div class="row">
         <div class="col-md-6">
             <h6 class="text-center">Top Categories (Pie Chart)</h6>
-            <div class="border p-3 bg-white">
-                {{ text_analysis.pie_chart|safe }}
-            </div>
+            <div>{{ text_analysis.pie_chart|safe }}</div>
         </div>
         <div class="col-md-6">
             <h6 class="text-center">Frequency Distribution (Bar Chart)</h6>
-            <div class="border p-3 bg-white">
-                {{ text_analysis.bar_chart|safe }}
-            </div>
+            <div>{{ text_analysis.bar_chart|safe }}</div>
         </div>
     </div>
-
     <div class="mt-3">
         <h6>Top 10 Values:</h6>
         <table class="table table-sm table-bordered bg-white">
@@ -205,36 +199,34 @@
 </div>
 {% endif %}
 
-<!-- Table Section -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h5>Column Names:</h5>
-        <p class="badge bg-secondary">{{ columns }}</p>
-        <h5 class="mt-4">First 5 Rows (Pandas Output):</h5>
-        <div class="table-responsive">
-            {{ head|safe }}
-        </div>
-    </div>
+<!-- Data Table -->
+<div class="content-card">
+    <h5><i class="bi bi-table text-primary"></i> Column Names</h5>
+    <p><span class="badge bg-secondary">{{ columns }}</span></p>
+    <h5 class="mt-4"><i class="bi bi-list-ol text-primary"></i> First 5 Rows (Data Preview)</h5>
+    <div class="table-responsive">{{ head|safe }}</div>
 </div>
 
 <!-- Machine Learning Section -->
-<div class="mt-5 text-center border-top pt-4 pb-4">
-    <h4>Machine Learning Engine</h4>
-    <p class="text-muted">Automatically selects the best algorithm for your data.</p>
-    <a href="{% url 'train_model' dataset_id %}" id="trainBtn" onclick="showSpinner('trainBtn', 'Training...')" class="btn btn-warning btn-lg px-4">🤖 Train ML Model</a>
+<div class="content-card text-center">
+    <h4 class="page-title"><i class="bi bi-robot text-warning"></i> Machine Learning Engine</h4>
+    <p class="page-subtitle">Automatically selects the best algorithm for your data</p>
+    <a href="{% url 'train_model' dataset_id %}" id="trainBtn" onclick="showSpinner('trainBtn', 'Training...')" class="btn btn-warning px-4">
+        <i class="bi bi-play-circle"></i> Train ML Model
+    </a>
 
     {% if request.session.ml_result %}
         {% with r=request.session.ml_result %}
-        <div class="alert alert-success mt-4 w-75 mx-auto shadow-sm">
-            <h5 class="alert-heading">✅ Model Trained Successfully!</h5>
+        <div class="alert alert-success mt-4 text-start">
+            <h5 class="text-center">✅ Model Trained Successfully!</h5>
             <hr>
             <div class="row">
-                <div class="col-md-6 text-start">
+                <div class="col-md-6">
                     <p><b>Problem Type:</b> {{ r.problem_type }}</p>
                     <p><b>Best Algorithm:</b> <span class="badge bg-primary">{{ r.best_algorithm }}</span></p>
                     <p><b>{{ r.metric_name }}:</b> <span class="badge bg-success">{{ r.best_score }}</span></p>
                 </div>
-                <div class="col-md-6 text-start">
+                <div class="col-md-6">
                     <h6>All Algorithms Tested:</h6>
                     <ul class="list-unstyled">
                         {% for algo, score in r.all_results.items %}
@@ -246,31 +238,28 @@
 
             {% if r.feature_importance %}
                 <hr>
-                <h6 class="text-start">📊 Feature Importance (Top 5):</h6>
-                <div class="text-start">
-                    {% for feature, importance in r.feature_importance.items %}
-                        {% if forloop.counter <= 5 %}
-                            <div class="mb-1">
-                                <span class="badge bg-secondary">{{ feature }}</span> : <b>{{ importance }}</b>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+                <h6>📊 Feature Importance (Top 5):</h6>
+                {% for feature, importance in r.feature_importance.items %}
+                    {% if forloop.counter <= 5 %}
+                        <div class="mb-1">
+                            <span class="badge bg-secondary">{{ feature }}</span> : <b>{{ importance }}</b>
+                        </div>
+                    {% endif %}
+                {% endfor %}
             {% endif %}
         </div>
 
         <div class="mt-3">
-            <a href="{% url 'download_report' dataset_id %}" id="pdfBtn" onclick="showSpinner('pdfBtn', 'Generating PDF...')" class="btn btn-danger btn-lg px-4">📄 Download PDF Report</a>
-        </div>
-
-        <div class="mt-2">
-            <a href="{% url 'email_report' dataset_id %}" id="emailBtn" onclick="showSpinner('emailBtn', 'Sending Email...')" class="btn btn-info btn-lg px-4">📧 Email Report</a>
+            <a href="{% url 'download_report' dataset_id %}" id="pdfBtn" onclick="showSpinner('pdfBtn', 'Generating PDF...')" class="btn btn-danger px-4">
+                <i class="bi bi-file-pdf"></i> Download PDF Report
+            </a>
+            <a href="{% url 'email_report' dataset_id %}" id="emailBtn" onclick="showSpinner('emailBtn', 'Sending Email...')" class="btn btn-info px-4 ms-2">
+                <i class="bi bi-envelope-fill"></i> Email Report
+            </a>
         </div>
 
         {% if email_sent %}
-            <div class="alert alert-success mt-3 w-50 mx-auto">
-                ✅ Email sent successfully! Check the terminal.
-            </div>
+            <div class="alert alert-success mt-3">✅ Email sent successfully! Check the terminal.</div>
         {% endif %}
         {% endwith %}
     {% endif %}
