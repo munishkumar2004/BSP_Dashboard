@@ -4,7 +4,7 @@ import pandas as pd
 class DataCleaner:
     def __init__(self, file_path):
         if str(file_path).endswith('.csv'):
-            self.df = pd.read_csv(file_path)
+            self.df = pd.read_csv(file_path, on_bad_lines='skip')
         else:
             self.df = pd.read_excel(file_path)
         self.original_shape = self.df.shape

@@ -8,10 +8,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import r2_score, accuracy_score
 from xgboost import XGBClassifier, XGBRegressor
 
+
 class ModelTrainer:
     def __init__(self, file_path):
         if str(file_path).endswith('.csv'):
-            self.df = pd.read_csv(file_path)
+            self.df = pd.read_csv(file_path, on_bad_lines='skip')
         else:
             self.df = pd.read_excel(file_path)
 
@@ -19,13 +20,14 @@ class ModelTrainer:
         """Text columns ko numbers mein convert karo aur missing values bharo"""
         df = self.df.copy()
         
-        # 🟢 FIX: Numeric check using pandas API 
+        # Numeric check using pandas API
         for col in df.columns:
             if pd.api.types.is_numeric_dtype(df[col]):
                 df[col] = df[col].fillna(df[col].mean())
             else:
                 df[col] = df[col].fillna('Unknown')
         
+        # Text columns ko numbers mein convert karo
         label_encoders = {}
         for col in df.columns:
             if not pd.api.types.is_numeric_dtype(df[col]):
@@ -52,7 +54,7 @@ class ModelTrainer:
             algorithms = {
                 'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42),
                 'XGBoost': XGBClassifier(n_estimators=100, random_state=42, eval_metric='logloss'),
-                'Logistic Regression': LogisticRegression(max_iter=5000, solver='lbfgs')
+                'Logistic Regression': LogisticRegression(max_iter=5000)
             }
             problem_type = "Classification"
             metric_name = "Accuracy"

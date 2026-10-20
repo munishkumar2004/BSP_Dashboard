@@ -13,9 +13,6 @@ from analytics.analyzer import DataAnalyzer
 from analytics.ai_summary import generate_ai_summary
 from analytics.pdf import generate_pdf
 from analytics.cleaner import DataCleaner
-from analytics.image_analyzer import ImageAnalyzer
-from analytics.audio_analyzer import AudioAnalyzer
-from analytics.video_analyzer import VideoAnalyzer
 from ml_engine.trainer import ModelTrainer
 
 
@@ -54,6 +51,7 @@ def dashboard_view(request, dataset_id=None):
             context['correlation_chart'] = analyzer.get_correlation_heatmap()
             context['quality'] = analyzer.get_data_quality()
             context['text_analysis'] = analyzer.get_text_analysis()
+            context['spotify_chart'] = analyzer.get_popularity_vs_danceability_chart()  
             context['ai_summary'] = generate_ai_summary(analyzer)
         except Exception as e:
             context['error'] = str(e)
@@ -160,7 +158,7 @@ def merge_datasets_view(request):
             for did in selected_ids:
                 ds = Dataset.objects.get(id=did)
                 if str(ds.file.path).endswith('.csv'):
-                    df = pd.read_csv(ds.file.path)
+                    df = pd.read_csv(ds.file.path, on_bad_lines='skip')
                 else:
                     df = pd.read_excel(ds.file.path)
                 dfs.append(df)
@@ -218,7 +216,7 @@ def clean_data_view(request, dataset_id):
 
 
 # ============================================================
-# IMAGE ANALYSIS VIEWS (Background Task)
+# IMAGE ANALYSIS VIEWS
 # ============================================================
 
 @login_required(login_url='login')
@@ -229,10 +227,7 @@ def upload_image_view(request):
         if request.user.is_authenticated:
             img.user = request.user
         img.save()
-
-        # 🟢 Background task chalao
         analyze_image_task.delay(img.id)
-
         return redirect('image_detail', image_id=img.id)
     return render(request, 'core/upload_image.html')
 
@@ -250,7 +245,7 @@ def image_detail_view(request, image_id):
 
 
 # ============================================================
-# AUDIO ANALYSIS VIEWS (Background Task)
+# AUDIO ANALYSIS VIEWS
 # ============================================================
 
 @login_required(login_url='login')
@@ -261,10 +256,7 @@ def upload_audio_view(request):
         if request.user.is_authenticated:
             audio.user = request.user
         audio.save()
-
-        # 🟢 Background task chalao
         analyze_audio_task.delay(audio.id)
-
         return redirect('audio_detail', audio_id=audio.id)
     return render(request, 'core/upload_audio.html')
 
@@ -282,7 +274,7 @@ def audio_detail_view(request, audio_id):
 
 
 # ============================================================
-# VIDEO ANALYSIS VIEWS (Background Task)
+# VIDEO ANALYSIS VIEWS
 # ============================================================
 
 @login_required(login_url='login')
@@ -293,10 +285,7 @@ def upload_video_view(request):
         if request.user.is_authenticated:
             video.user = request.user
         video.save()
-
-        # 🟢 Background task chalao
         analyze_video_task.delay(video.id)
-
         return redirect('video_detail', video_id=video.id)
     return render(request, 'core/upload_video.html')
 

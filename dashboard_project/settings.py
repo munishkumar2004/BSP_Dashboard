@@ -21,6 +21,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
 # Application definition
 INSTALLED_APPS = [
     'jazzmin',
+    'django_extensions',  
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -224,7 +225,7 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_IMPORTS = ('core.tasks',)
 
-# 🟢 Cache (Redis)
+# 🟢 Cache (Redis) - Background task results store karne ke liye
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',

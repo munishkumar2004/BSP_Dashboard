@@ -6,7 +6,7 @@ import plotly.io as pio
 class DataAnalyzer:
     def __init__(self, file_path):
         if str(file_path).endswith('.csv'):
-            self.df = pd.read_csv(file_path)
+            self.df = pd.read_csv(file_path, on_bad_lines='skip')
         else:
             self.df = pd.read_excel(file_path)
 
@@ -14,7 +14,6 @@ class DataAnalyzer:
         return self.df.describe().to_dict()
 
     def get_head(self):
-        # 🟢 Index ko 1 se start karo (0 ki jagah)
         df_head = self.df.iloc[:, :15].head().copy()
         df_head.index = df_head.index + 1
         return df_head.to_html(
@@ -151,3 +150,19 @@ class DataAnalyzer:
             }
         except:
             return None
+
+    def get_popularity_vs_danceability_chart(self):
+        if 'popularity' in self.df.columns and 'danceability' in self.df.columns:
+            try:
+                df_sample = self.df.sample(n=min(2000, len(self.df)), random_state=42)
+                fig = px.scatter(
+                    df_sample,
+                    x='danceability',
+                    y='popularity',
+                    color='track_genre' if 'track_genre' in df_sample.columns else None,
+                    title='Popularity vs Danceability (Sample of 2000 tracks)'
+                )
+                return pio.to_html(fig, full_html=False)
+            except Exception:
+                return None
+        return None
