@@ -15,12 +15,24 @@ class ModelTrainer:
             self.df = pd.read_csv(file_path, on_bad_lines='skip')
         else:
             self.df = pd.read_excel(file_path)
+            
+        # 🟢 FIX 2: Saare 'Unnamed' columns drop karo
+        self.df = self.df.loc[:, ~self.df.columns.str.contains('^Unnamed')]
 
     def preprocess(self):
-        """Text columns ko numbers mein convert karo aur missing values bharo"""
         df = self.df.copy()
         
-        # Numeric check using pandas API
+        # High cardinality columns drop karo
+        for col in df.columns:
+            if not pd.api.types.is_numeric_dtype(df[col]):
+                if df[col].nunique() > 50: 
+                    df = df.drop(columns=[col])
+
+        # Bade dataset ko sample karo
+        if len(df) > 10000:
+            df = df.sample(n=10000, random_state=42)
+
+        # Missing values bharo
         for col in df.columns:
             if pd.api.types.is_numeric_dtype(df[col]):
                 df[col] = df[col].fillna(df[col].mean())
@@ -37,14 +49,20 @@ class ModelTrainer:
         
         return df
 
-    def train(self):
+    def train(self, target_col=None):
         df = self.preprocess()
         
         if len(df.columns) < 2:
             return None, "Kam se kam 2 columns chahiye."
         
-        X = df.iloc[:, :-1]
-        y = df.iloc[:, -1]
+        # 🟢 TARGET COLUMN LOGIC
+        if target_col and target_col in df.columns:
+            y = df[target_col]
+            X = df.drop(columns=[target_col])
+        else:
+            # Default: Last column as target
+            X = df.iloc[:, :-1]
+            y = df.iloc[:, -1]
         
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
@@ -52,17 +70,17 @@ class ModelTrainer:
         
         if unique_values <= 10:
             algorithms = {
-                'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42),
-                'XGBoost': XGBClassifier(n_estimators=100, random_state=42, eval_metric='logloss'),
-                'Logistic Regression': LogisticRegression(max_iter=5000)
+                'Random Forest': RandomForestClassifier(n_estimators=50, random_state=42, n_jobs=-1),
+                'XGBoost': XGBClassifier(n_estimators=50, random_state=42, eval_metric='logloss', n_jobs=-1),
+                'Logistic Regression': LogisticRegression(max_iter=1000)
             }
             problem_type = "Classification"
             metric_name = "Accuracy"
         else:
             algorithms = {
                 'Linear Regression': LinearRegression(),
-                'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42),
-                'XGBoost': XGBRegressor(n_estimators=100, random_state=42)
+                'Random Forest': RandomForestRegressor(n_estimators=50, random_state=42, n_jobs=-1),
+                'XGBoost': XGBRegressor(n_estimators=50, random_state=42, n_jobs=-1)
             }
             problem_type = "Regression"
             metric_name = "R2 Score"
@@ -109,7 +127,8 @@ class ModelTrainer:
             'problem_type': problem_type,
             'metric_name': metric_name,
             'all_results': all_results,
-            'feature_importance': feature_importance
+            'feature_importance': feature_importance,
+            'target_column': target_col if target_col else df.columns[-1] # Track karo
         }
         
         return result, None

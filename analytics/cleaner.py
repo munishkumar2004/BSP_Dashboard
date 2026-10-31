@@ -7,6 +7,10 @@ class DataCleaner:
             self.df = pd.read_csv(file_path, on_bad_lines='skip')
         else:
             self.df = pd.read_excel(file_path)
+            
+        # 🟢 FIX 2: Saare 'Unnamed' columns drop karo
+        self.df = self.df.loc[:, ~self.df.columns.str.contains('^Unnamed')]
+            
         self.original_shape = self.df.shape
         self.actions_performed = []
 

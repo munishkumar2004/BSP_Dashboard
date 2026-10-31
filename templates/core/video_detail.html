@@ -3,13 +3,13 @@
 {% block content %}
 
 {% if status == 'processing' or status == 'pending' %}
-<div class="alert alert-info text-center">
+<div class="alert alert-info text-center" style="background: rgba(23, 162, 184, 0.2); border: 1px solid rgba(23, 162, 184, 0.4); color: #fff;">
     <div class="spinner-border spinner-border-sm me-2" role="status"></div>
     <b>Processing video in background...</b> Refresh page in 2-5 minutes.
     <br><small class="text-muted">Status: {{ status }}</small>
 </div>
 {% elif status and 'failed' in status %}
-<div class="alert alert-danger">❌ <b>Processing failed:</b> {{ status }}</div>
+<div class="alert alert-danger" style="background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.4); color: #fff;">❌ <b>Processing failed:</b> {{ status }}</div>
 {% endif %}
 
 {% if analysis %}
@@ -61,19 +61,20 @@
                 <div class="alert alert-warning">{{ analysis.detections.error }}</div>
             {% else %}
                 {% for frame in analysis.detections.detections %}
-                    <div class="mb-3 p-3" style="background: #f8f9fa; border-radius: 8px;">
+                    <!-- 🟢 UI FIX: Background dark aur text white -->
+                    <div class="mb-3 p-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span><b>Timestamp:</b> {{ frame.timestamp }} sec (Frame #{{ frame.frame_index }})</span>
+                            <span style="color: #fff;"><b>Timestamp:</b> {{ frame.timestamp }} sec (Frame #{{ frame.frame_index }})</span>
                             <span class="badge bg-info">{{ frame.count }} objects</span>
                         </div>
                         {% if frame.objects %}
                             {% for obj in frame.objects %}
-                                <span class="badge bg-secondary me-1 mb-1">
+                                <span class="badge bg-secondary me-1 mb-1" style="background: rgba(255,255,255,0.15) !important;">
                                     {{ obj.label|title }} ({{ obj.confidence }}%)
                                 </span>
                             {% endfor %}
                         {% else %}
-                            <small class="text-muted">No objects detected in this frame</small>
+                            <small style="color: #94a3b8;">No objects detected in this frame</small>
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -89,8 +90,9 @@
                     <span class="badge bg-primary">Language: {{ analysis.transcription.language|upper }}</span>
                     <span class="badge bg-success">Words: {{ analysis.transcription.word_count }}</span>
                 </div>
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
-                    <p style="white-space: pre-wrap; margin: 0;">{{ analysis.transcription.text }}</p>
+                <!-- 🟢 UI FIX: Background dark aur text white -->
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545; border: 1px solid rgba(255,255,255,0.1);">
+                    <p style="white-space: pre-wrap; margin: 0; color: #fff;">{{ analysis.transcription.text }}</p>
                 </div>
             {% else %}
                 <p class="text-muted">No speech detected in video.</p>

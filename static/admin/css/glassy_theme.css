@@ -1,0 +1,112 @@
+/* 🎨 Premium Glassmorphism Theme */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    /* Dark aur premium gradient background */
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+    background-attachment: fixed;
+    color: #e2e8f0;
+    min-height: 100vh;
+}
+
+/* 🟢 Top Navbar */
+.top-navbar {
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* 🟢 Sidebar */
+.sidebar {
+    background: rgba(15, 23, 42, 0.7) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.sidebar .nav-item {
+    border-radius: 12px;
+    margin: 4px 12px;
+    border-left: none !important;
+}
+
+.sidebar .nav-item:hover, .sidebar .nav-item.active {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-left: none !important;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.05);
+}
+
+/* 🟢 Glass Cards (Sabse Zaroori) */
+.content-card, .card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    color: #fff !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.content-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 🟢 Typography */
+h1, h2, h3, h4, h5, h6, .page-title {
+    color: #ffffff !important;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.page-subtitle, .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* 🟢 Tables */
+.table {
+    color: #e2e8f0 !important;
+}
+.table thead th {
+    background: rgba(0, 0, 0, 0.4) !important;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.02) !important;
+}
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #fff;
+}
+
+/* 🟢 Inputs & Forms */
+.form-control, .form-select {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+    border-radius: 10px;
+}
+.form-control:focus {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25) !important;
+    color: #fff !important;
+}
+
+/* 🟢 Stat Cards (Dashboard ke top 4 cards) */
+.stat-card {
+    background: rgba(255, 255, 255, 0.03) !important; /* Solid gradient hata kar glass effect */
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 20px !important;
+}
+
+/* Charts ke background ko transparent karo */
+.js-plotly-plot .plotly .main-svg {
+    background: transparent !important;
+}

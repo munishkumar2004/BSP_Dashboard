@@ -6,6 +6,8 @@ from pathlib import Path
 from decouple import config
 import os
 import dj_database_url
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,13 +23,14 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '.onrender.com']
 # Application definition
 INSTALLED_APPS = [
     'jazzmin',
-    'django_extensions',  
+    'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     # Custom Apps
     'accounts',
     'core',
@@ -95,7 +98,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Media files (Uploaded datasets & models)
+# 🟢 LOCAL STORAGE (Cloudinary hata diya)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -128,27 +131,23 @@ JAZZMIN_SETTINGS = {
     "site_logo_classes": "img-circle",
     "site_icon": None,
     "welcome_sign": "Welcome to BSP Dashboard Administration",
-    "copyright": "Bhilai Steel Plant © 2026",
+    "copyright": "Bhilai Steel Plant", 
     "search_model": ["auth.User", "core.Dataset", "core.ImageDataset", "core.AudioDataset", "core.VideoDataset"],
-
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
         {"name": "Main Dashboard", "url": "/", "new_window": False},
         {"name": "Datasets", "model": "core.Dataset"},
         {"name": "Users", "model": "auth.User"},
     ],
-
     "usermenu_links": [
         {"name": "Main Dashboard", "url": "/", "new_window": False},
         {"model": "auth.user"}
     ],
-
     "show_sidebar": True,
     "navigation_expanded": True,
     "hide_apps": [],
     "hide_models": [],
     "order_with_respect_to": ["auth", "core", "core.Dataset", "core.ImageDataset", "core.AudioDataset", "core.VideoDataset", "core.MLModel", "core.Report"],
-
     "icons": {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
@@ -162,13 +161,11 @@ JAZZMIN_SETTINGS = {
     },
     "default_icon_parents": "fas fa-chevron-circle-right",
     "default_icon_children": "fas fa-circle",
-
     "related_modal_active": True,
     "custom_css": "admin/css/custom_admin.css",
     "custom_js": None,
     "use_google_fonts_cdn": True,
     "show_ui_builder": False,
-
     "changeform_format": "horizontal_tabs",
     "changeform_format_overrides": {
         "auth.user": "collapsible",
@@ -176,7 +173,6 @@ JAZZMIN_SETTINGS = {
     },
     "language_chooser": False,
 }
-
 
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
@@ -237,9 +233,6 @@ CACHES = {
 # ============================================================
 # 🟢 SENTRY ERROR TRACKING
 # ============================================================
-
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 
 SENTRY_DSN = config('SENTRY_DSN', default='')
 SENTRY_ENVIRONMENT = config('SENTRY_ENVIRONMENT', default='development')

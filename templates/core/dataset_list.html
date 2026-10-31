@@ -2,38 +2,72 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-10">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3>My Datasets</h3>
-            <a href="{% url 'dashboard' %}" class="btn btn-primary">Upload New Dataset</a>
-        </div>
+    <div class="col-md-12">
+        <div class="content-card">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <h3 class="page-title mb-1"><i class="bi bi-folder2-open text-primary"></i> My Datasets</h3>
+                    <p class="page-subtitle mb-0">Manage and analyze your uploaded files</p>
+                </div>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                    <i class="bi bi-plus-circle"></i> Upload New Dataset
+                </a>
+            </div>
 
-        {% if datasets %}
-        <table class="table table-hover shadow-sm bg-white">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Uploaded At</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for d in datasets %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ d.name }}</td>
-                    <td>{{ d.uploaded_at|date:"d M Y, H:i" }}</td>
-                    <td>
-                        <a href="{% url 'dashboard_with_id' d.id %}" class="btn btn-sm btn-success">Analyze</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div class="alert alert-info">Abhi tak koi dataset upload nahi hua hai.</div>
-        {% endif %}
+            {% if datasets %}
+            <div class="table-responsive">
+                <table class="table table-hover" style="color: #e2e8f0;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
+                            <th style="background: transparent; color: #94a3b8; font-weight: 600;">#</th>
+                            <th style="background: transparent; color: #94a3b8; font-weight: 600;">Name</th>
+                            <th style="background: transparent; color: #94a3b8; font-weight: 600;">Uploaded At</th>
+                            <th style="background: transparent; color: #94a3b8; font-weight: 600;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in datasets %}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle;">
+                            <td>{{ forloop.counter }}</td>
+                            <td style="color: #fff; font-weight: 500;">{{ d.name }}</td>
+                            <td style="color: #94a3b8;">{{ d.uploaded_at|date:"d M Y, H:i" }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <!-- Analyze Button -->
+                                    <a href="{% url 'dashboard_with_id' d.id %}" class="btn btn-sm btn-success" style="background: rgba(40, 167, 69, 0.8); border: none;">
+                                        <i class="bi bi-bar-chart-line"></i> Analyze
+                                    </a>
+                                    
+                                    <!-- Delete Form -->
+                                    <form method="POST" action="{% url 'delete_dataset' d.id %}" style="display:inline;" onsubmit="return confirm('Kya tum sach mein yeh dataset delete karna chahte ho? (Yeh wapas nahi aayega)');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger" style="background: rgba(220, 53, 69, 0.8); border: none;" title="Delete Dataset">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <!-- 🟢 EMPTY STATE -->
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-inbox text-muted" style="font-size: 5rem; opacity: 0.5;"></i>
+                </div>
+                <h4 class="text-white">No Datasets Found</h4>
+                <p class="text-muted">Abhi tak koi dataset upload nahi hua hai. Apna pehla dataset upload karke analysis shuru karein.</p>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary mt-3 px-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                    <i class="bi bi-cloud-upload"></i> Upload First Dataset
+                </a>
+            </div>
+            {% endif %}
+            
+        </div>
     </div>
 </div>
 {% endblock %}

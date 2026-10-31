@@ -3,56 +3,64 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-10">
-        <div class="card shadow-lg border-0" style="border-radius: 20px;">
-            <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px 20px 0 0;">
-                <h4 class="mb-0"><i class="bi bi-intersect"></i> Merge Multiple Datasets</h4>
+        <div class="content-card">
+            
+            <!-- Header -->
+            <div class="d-flex align-items-center mb-4 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div class="me-3" style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-intersect text-white" style="font-size: 24px;"></i>
+                </div>
+                <div>
+                    <h4 class="page-title mb-0">Merge Multiple Datasets</h4>
+                    <p class="page-subtitle mb-0">Select 2 or more datasets to combine them into a single file.</p>
+                </div>
             </div>
-            <div class="card-body p-4">
-                <p class="text-muted">
-                    Select 2 or more datasets to merge them into a single file.
-                    <br><small>Note: Columns should be similar (same names) for best results.</small>
-                </p>
 
-                {% if error %}
-                <div class="alert alert-danger">{{ error }}</div>
+            {% if error %}
+            <div class="alert alert-danger" style="background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.4); color: #fff;">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if datasets %}
+                <div class="table-responsive">
+                    <!-- 🟢 Custom Dark Table Styling -->
+                    <table class="table table-hover" style="color: #e2e8f0;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid rgba(255,255,255,0.1);">
+                                <th width="50" style="background: transparent; color: #94a3b8;">Select</th>
+                                <th style="background: transparent; color: #94a3b8;">Dataset Name</th>
+                                <th style="background: transparent; color: #94a3b8;">Uploaded</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in datasets %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle;">
+                                <td>
+                                    <input type="checkbox" name="selected_datasets" value="{{ d.id }}" class="form-check-input" style="background-color: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.3);">
+                                </td>
+                                <td style="color: #fff;">{{ d.name }}</td>
+                                <td style="color: #94a3b8;">{{ d.uploaded_at|date:"d M Y, H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="submit" class="btn btn-lg w-100 text-white fw-semibold mt-4"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px;">
+                    <i class="bi bi-intersect"></i> Merge Selected Datasets
+                </button>
+                {% else %}
+                <div class="alert alert-info" style="background: rgba(23, 162, 184, 0.1); border: 1px solid rgba(23, 162, 184, 0.3); color: #fff;">
+                    Merge karne ke liye pehle kuch datasets upload karo.
+                </div>
                 {% endif %}
-
-                <form method="POST">
-                    {% csrf_token %}
-
-                    {% if datasets %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th width="50">Select</th>
-                                    <th>Dataset Name</th>
-                                    <th>Uploaded</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for d in datasets %}
-                                <tr>
-                                    <td>
-                                        <input type="checkbox" name="selected_datasets" value="{{ d.id }}" class="form-check-input">
-                                    </td>
-                                    <td>{{ d.name }}</td>
-                                    <td>{{ d.uploaded_at|date:"d M Y, H:i" }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <button type="submit" class="btn btn-lg w-100 text-white fw-semibold mt-3"
-                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px;">
-                        <i class="bi bi-intersect"></i> Merge Selected Datasets
-                    </button>
-                    {% else %}
-                    <div class="alert alert-info">Pehle kuch datasets upload karo.</div>
-                    {% endif %}
-                </form>
-            </div>
+            </form>
+            
         </div>
     </div>
 </div>

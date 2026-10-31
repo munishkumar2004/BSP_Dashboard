@@ -4,54 +4,48 @@
 <!-- 🟢 MULTIMEDIA STATISTICS CARDS -->
 <div class="row g-3 mb-4">
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border: none;">
-            <i class="bi bi-image-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-image-fill text-primary" style="font-size: 2.5rem;"></i>
             <h2 class="mt-2 mb-0">{{ image_count }}</h2>
-            <p class="mb-0" style="opacity: 0.9;">Images Analyzed</p>
-            <a href="{% url 'upload_image' %}" class="btn btn-light btn-sm mt-2">
-                <i class="bi bi-plus-circle"></i> Upload Image
-            </a>
+            <p class="mb-0 text-muted">Images Analyzed</p>
+            <a href="{% url 'image_list' %}" class="btn btn-sm btn-outline-primary mt-3 w-100">Image Dashboard</a>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: #fff; border: none;">
-            <i class="bi bi-mic-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-mic-fill text-danger" style="font-size: 2.5rem;"></i>
             <h2 class="mt-2 mb-0">{{ audio_count }}</h2>
-            <p class="mb-0" style="opacity: 0.9;">Audios Analyzed</p>
-            <a href="{% url 'upload_audio' %}" class="btn btn-light btn-sm mt-2">
-                <i class="bi bi-plus-circle"></i> Upload Audio
-            </a>
+            <p class="mb-0 text-muted">Audios Analyzed</p>
+            <a href="{% url 'audio_list' %}" class="btn btn-sm btn-outline-danger mt-3 w-100">Audio Dashboard</a>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #fff; border: none;">
-            <i class="bi bi-camera-video-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-camera-video-fill text-info" style="font-size: 2.5rem;"></i>
             <h2 class="mt-2 mb-0">{{ video_count }}</h2>
-            <p class="mb-0" style="opacity: 0.9;">Videos Analyzed</p>
-            <a href="{% url 'upload_video' %}" class="btn btn-light btn-sm mt-2">
-                <i class="bi bi-plus-circle"></i> Upload Video
-            </a>
+            <p class="mb-0 text-muted">Videos Analyzed</p>
+            <a href="{% url 'video_list' %}" class="btn btn-sm btn-outline-info mt-3 w-100">Video Dashboard</a>
         </div>
     </div>
     <div class="col-md-3">
-        <div class="content-card text-center mb-0" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #fff; border: none;">
-            <i class="bi bi-database-fill" style="font-size: 2.5rem; opacity: 0.7;"></i>
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-database-fill text-success" style="font-size: 2.5rem;"></i>
             <h2 class="mt-2 mb-0">{{ user.dataset_set.count }}</h2>
-            <p class="mb-0" style="opacity: 0.9;">Datasets Uploaded</p>
-            <a href="{% url 'dataset_list' %}" class="btn btn-light btn-sm mt-2">
-                <i class="bi bi-folder2-open"></i> My Datasets
-            </a>
+            <p class="mb-0 text-muted">Datasets Uploaded</p>
+            <a href="{% url 'dataset_list' %}" class="btn btn-sm btn-outline-success mt-3 w-100">My Datasets</a>
         </div>
     </div>
 </div>
 
-<!-- 🟢 WELCOME HEADER -->
+<!-- 🟢 CONDITION: Agar dataset_name hai (Analysis Mode), toh upload form mat dikhao -->
+{% if not dataset_name %}
+<!-- WELCOME HEADER -->
 <div class="content-card text-center mb-4">
     <h3 class="page-title mb-1">Welcome to BSP Dashboard</h3>
     <p class="page-subtitle mb-0">Upload your dataset to start analysis</p>
 </div>
 
-<!-- 🟢 UPLOAD DATASET -->
+<!-- UPLOAD DATASET FORM -->
 <div class="row justify-content-center">
     <div class="col-md-7">
         <div class="content-card">
@@ -73,21 +67,24 @@
         </div>
     </div>
 </div>
+{% endif %}
 
+<!-- 🟢 CONDITION: Agar dataset_name hai (Analysis Mode), toh sirf analysis dikhao -->
 {% if dataset_name %}
-<!-- 🟢 ANALYSIS SECTION -->
+<!-- ANALYSIS HEADER -->
 <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
     <div>
         <h4 class="page-title mb-0">📊 Analysis: <span class="text-success">{{ dataset_name }}</span></h4>
         <p class="page-subtitle mb-0">Automated analysis using Pandas, Plotly and Machine Learning</p>
     </div>
-    <a href="{% url 'dataset_list' %}" class="btn btn-sm btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Back to Datasets
+    <!-- 🟢 Upload New Button (Wapas fresh page par jaane ke liye) -->
+    <a href="{% url 'dashboard' %}" class="btn btn-primary px-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+        <i class="bi bi-cloud-upload"></i> Upload New Dataset
     </a>
 </div>
 
 <!-- AI Summary Card -->
-<div class="content-card" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196f3;">
+<div class="content-card" style="background: rgba(102, 126, 234, 0.1) !important; border-left: 4px solid #667eea;">
     <h5 class="mb-2"><i class="bi bi-robot text-primary"></i> AI Generated Insights</h5>
     <p class="mb-0">{{ ai_summary }}</p>
 </div>
@@ -98,40 +95,39 @@
     <h5 class="mb-3"><i class="bi bi-clipboard-check text-primary"></i> Data Quality Report</h5>
     <div class="row g-3">
         <div class="col-md-3">
-            <div class="text-center p-3" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: #fff; border-radius: 10px;">
-                <i class="bi bi-table" style="font-size: 1.8rem; opacity: 0.7;"></i>
+            <div class="text-center p-3" style="background: rgba(23, 162, 184, 0.2); border: 1px solid rgba(23, 162, 184, 0.3); border-radius: 10px;">
+                <i class="bi bi-table text-info" style="font-size: 1.8rem;"></i>
                 <h3 class="mt-2 mb-0">{{ quality.total_rows }}</h3>
-                <p class="mb-0 small" style="opacity: 0.9;">Total Rows</p>
+                <p class="mb-0 small text-muted">Total Rows</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="text-center p-3" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); color: #fff; border-radius: 10px;">
-                <i class="bi bi-exclamation-triangle" style="font-size: 1.8rem; opacity: 0.7;"></i>
+            <div class="text-center p-3" style="background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 10px;">
+                <i class="bi bi-exclamation-triangle text-warning" style="font-size: 1.8rem;"></i>
                 <h3 class="mt-2 mb-0">{{ quality.missing_values }}</h3>
-                <p class="mb-0 small" style="opacity: 0.9;">Missing ({{ quality.missing_percentage }}%)</p>
+                <p class="mb-0 small text-muted">Missing ({{ quality.missing_percentage }}%)</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="text-center p-3" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: #fff; border-radius: 10px;">
-                <i class="bi bi-files" style="font-size: 1.8rem; opacity: 0.7;"></i>
+            <div class="text-center p-3" style="background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 10px;">
+                <i class="bi bi-files text-danger" style="font-size: 1.8rem;"></i>
                 <h3 class="mt-2 mb-0">{{ quality.duplicate_rows }}</h3>
-                <p class="mb-0 small" style="opacity: 0.9;">Duplicates</p>
+                <p class="mb-0 small text-muted">Duplicates</p>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="text-center p-3" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: #fff; border-radius: 10px;">
-                <i class="bi bi-check-circle" style="font-size: 1.8rem; opacity: 0.7;"></i>
+            <div class="text-center p-3" style="background: rgba(40, 167, 69, 0.2); border: 1px solid rgba(40, 167, 69, 0.3); border-radius: 10px;">
+                <i class="bi bi-check-circle text-success" style="font-size: 1.8rem;"></i>
                 <h3 class="mt-2 mb-0">{{ quality.quality_score }}%</h3>
-                <p class="mb-0 small" style="opacity: 0.9;">Quality Score</p>
+                <p class="mb-0 small text-muted">Quality Score</p>
             </div>
         </div>
     </div>
 
     <div class="text-center mt-4">
         <a href="{% url 'clean_data' dataset_id %}" 
-           class="btn btn-success px-4"
-           onclick="showSpinner('cleanBtn', 'Cleaning...')"
-           id="cleanBtn">
+           onclick="this.classList.add('disabled'); this.innerHTML='<span class=\'spinner-border spinner-border-sm\' role=\'status\'></span> Cleaning...';"
+           class="btn btn-success px-4">
             <i class="bi bi-magic"></i> Clean Data
         </a>
     </div>
@@ -146,7 +142,7 @@
 </div>
 {% endif %}
 
-<!-- (Jupyter Integration) -->
+<!-- Spotify Chart (Jupyter Integration) -->
 {% if spotify_chart %}
 <div class="content-card mt-4">
     <h5><i class="bi bi-music-note-beamed text-primary"></i> Spotify Data Insights</h5>
@@ -185,25 +181,6 @@
             <div>{{ text_analysis.bar_chart|safe }}</div>
         </div>
     </div>
-    <div class="mt-3">
-        <h6>Top 10 Values:</h6>
-        <table class="table table-sm table-bordered bg-white">
-            <thead class="table-dark">
-                <tr>
-                    <th>Value</th>
-                    <th>Count</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for value, count in text_analysis.top_values.items %}
-                <tr>
-                    <td>{{ value }}</td>
-                    <td><span class="badge bg-primary">{{ count }}</span></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
 </div>
 {% endif %}
 
@@ -218,18 +195,33 @@
 <!-- Machine Learning Section -->
 <div class="content-card text-center">
     <h4 class="page-title"><i class="bi bi-robot text-warning"></i> Machine Learning Engine</h4>
-    <p class="page-subtitle">Automatically selects the best algorithm for your data</p>
-    <a href="{% url 'train_model' dataset_id %}" id="trainBtn" onclick="showSpinner('trainBtn', 'Training...')" class="btn btn-warning px-4">
-        <i class="bi bi-play-circle"></i> Train ML Model
-    </a>
+    <p class="page-subtitle">Select a target column and train the model</p>
+    
+    <form method="POST" action="{% url 'train_model' dataset_id %}" class="d-flex justify-content-center align-items-end gap-3 mb-4 mt-3" onsubmit="showSpinner('trainBtn', 'Training...')">
+        {% csrf_token %}
+        <div class="text-start" style="width: 300px;">
+            <label class="form-label small fw-semibold text-muted">Select Target Column to Predict</label>
+            <select name="target_column" class="form-select" style="background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.2);">
+                {% for col in columns %}
+                    <option value="{{ col }}" {% if forloop.last %}selected{% endif %}>{{ col }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <button type="submit" id="trainBtn" class="btn btn-warning px-4 pb-2" style="height: 46px;">
+                <i class="bi bi-play-circle"></i> Train ML Model
+            </button>
+        </div>
+    </form>
 
     {% if request.session.ml_result %}
         {% with r=request.session.ml_result %}
-        <div class="alert alert-success mt-4 text-start">
+        <div class="alert alert-success mt-4 text-start" style="background: rgba(25, 135, 84, 0.2); border-color: rgba(25, 135, 84, 0.4); color: #fff;">
             <h5 class="text-center">✅ Model Trained Successfully!</h5>
-            <hr>
+            <hr style="border-color: rgba(255,255,255,0.1);">
             <div class="row">
                 <div class="col-md-6">
+                    <p><b>Target Column:</b> <span class="badge bg-warning text-dark">{{ r.target_column }}</span></p>
                     <p><b>Problem Type:</b> {{ r.problem_type }}</p>
                     <p><b>Best Algorithm:</b> <span class="badge bg-primary">{{ r.best_algorithm }}</span></p>
                     <p><b>{{ r.metric_name }}:</b> <span class="badge bg-success">{{ r.best_score }}</span></p>
@@ -245,7 +237,7 @@
             </div>
 
             {% if r.feature_importance %}
-                <hr>
+                <hr style="border-color: rgba(255,255,255,0.1);">
                 <h6>📊 Feature Importance (Top 5):</h6>
                 {% for feature, importance in r.feature_importance.items %}
                     {% if forloop.counter <= 5 %}
@@ -258,16 +250,20 @@
         </div>
 
         <div class="mt-3">
-            <a href="{% url 'download_report' dataset_id %}" id="pdfBtn" onclick="showSpinner('pdfBtn', 'Generating PDF...')" class="btn btn-danger px-4">
+            <a href="{% url 'download_report' dataset_id %}" 
+               onclick="this.classList.add('disabled'); this.innerHTML='<span class=\'spinner-border spinner-border-sm\' role=\'status\'></span> Generating...';"
+               class="btn btn-danger px-4">
                 <i class="bi bi-file-pdf"></i> Download PDF Report
             </a>
-            <a href="{% url 'email_report' dataset_id %}" id="emailBtn" onclick="showSpinner('emailBtn', 'Sending Email...')" class="btn btn-info px-4 ms-2">
+            <a href="{% url 'email_report' dataset_id %}" 
+               onclick="this.classList.add('disabled'); this.innerHTML='<span class=\'spinner-border spinner-border-sm\' role=\'status\'></span> Sending...';"
+               class="btn btn-info px-4 ms-2">
                 <i class="bi bi-envelope-fill"></i> Email Report
             </a>
         </div>
 
         {% if email_sent %}
-            <div class="alert alert-success mt-3">✅ Email sent successfully! Check the terminal.</div>
+            <div class="alert alert-success mt-3" style="background: rgba(25, 135, 84, 0.2); border-color: rgba(25, 135, 84, 0.4); color: #fff;">✅ Email sent successfully! Check the terminal.</div>
         {% endif %}
         {% endwith %}
     {% endif %}
@@ -276,7 +272,7 @@
 {% endif %}
 
 {% if error %}
-<div class="alert alert-danger mt-3 shadow-sm">Error: {{ error }}</div>
+<div class="alert alert-danger mt-3 shadow-sm">{{ error }}</div>
 {% endif %}
 
 {% endblock %}

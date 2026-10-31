@@ -2,6 +2,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.io as pio
 
+# 🟢 Common layout settings for all charts (Dark Theme & Transparent Background)
+CHART_LAYOUT = dict(
+    template="plotly_dark",
+    paper_bgcolor='rgba(0,0,0,0)',
+    plot_bgcolor='rgba(0,0,0,0)',
+    font=dict(color='#e2e8f0')
+)
 
 class DataAnalyzer:
     def __init__(self, file_path):
@@ -9,24 +16,31 @@ class DataAnalyzer:
             self.df = pd.read_csv(file_path, on_bad_lines='skip')
         else:
             self.df = pd.read_excel(file_path)
+            
+        # 🟢 FIX 2: Saare 'Unnamed' columns drop karo (sirf 0 nahi, 1, 2 bhi)
+        self.df = self.df.loc[:, ~self.df.columns.str.contains('^Unnamed')]
 
     def get_summary(self):
         return self.df.describe().to_dict()
 
     def get_head(self):
-        df_head = self.df.iloc[:, :15].head().copy()
+        # 50 columns aur 20 rows dikhao. 'table-striped' hata diya hai.
+        df_head = self.df.iloc[:, :50].head(20).copy()
         df_head.index = df_head.index + 1
         return df_head.to_html(
-            classes='table table-striped table-bordered table-hover',
+            classes='table table-hover', 
             border=0,
             justify='left'
         )
 
+    def get_pdf_table(self):
+        # PDF ke liye sirf pehle 6 columns aur 10 rows
+        df_pdf = self.df.iloc[:10, :6].copy()
+        df_pdf.index = df_pdf.index + 1
+        return df_pdf.to_html(classes='pdf-table', border=1, justify='left')
+
     def get_columns(self):
-        cols = list(self.df.columns)
-        if len(cols) > 15:
-            return cols[:15] + [f"... aur {len(cols) - 15} columns"]
-        return cols
+        return list(self.df.columns)
 
     def get_chart(self):
         numeric_df = self.df.select_dtypes(include=['number'])
@@ -37,6 +51,7 @@ class DataAnalyzer:
                 y=numeric_df.columns[1],
                 title="Scatter Plot"
             )
+            fig.update_layout(**CHART_LAYOUT)
             return pio.to_html(fig, full_html=False)
         return None
 
@@ -71,6 +86,7 @@ class DataAnalyzer:
                 y=numeric_cols[0],
                 title=f"{numeric_cols[0]} Trend over {date_col}"
             )
+            fig.update_layout(**CHART_LAYOUT)
             return pio.to_html(fig, full_html=False)
         except:
             return None
@@ -88,6 +104,7 @@ class DataAnalyzer:
                 title="Correlation Heatmap",
                 color_continuous_scale='RdBu_r'
             )
+            fig.update_layout(**CHART_LAYOUT)
             return pio.to_html(fig, full_html=False)
         except:
             return None
@@ -131,6 +148,7 @@ class DataAnalyzer:
                 names=value_counts.index.astype(str),
                 title=f"Top Categories in '{col}'"
             )
+            fig_pie.update_layout(**CHART_LAYOUT)
             pie_html = pio.to_html(fig_pie, full_html=False)
 
             fig_bar = px.bar(
@@ -139,6 +157,7 @@ class DataAnalyzer:
                 title=f"Frequency of '{col}'",
                 labels={'x': col, 'y': 'Count'}
             )
+            fig_bar.update_layout(**CHART_LAYOUT)
             bar_html = pio.to_html(fig_bar, full_html=False)
 
             return {
@@ -162,6 +181,7 @@ class DataAnalyzer:
                     color='track_genre' if 'track_genre' in df_sample.columns else None,
                     title='Popularity vs Danceability (Sample of 2000 tracks)'
                 )
+                fig.update_layout(**CHART_LAYOUT)
                 return pio.to_html(fig, full_html=False)
             except Exception:
                 return None

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- 🟢 MULTIMEDIA STATISTICS CARDS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-image-fill text-primary" style="font-size: 2.5rem;"></i>
+            <h2 class="mt-2 mb-0">{{ image_count }}</h2>
+            <p class="mb-0 text-muted">Images Analyzed</p>
+            <a href="{% url 'image_list' %}" class="btn btn-sm btn-outline-primary mt-3 w-100">Image Dashboard</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-mic-fill text-danger" style="font-size: 2.5rem;"></i>
+            <h2 class="mt-2 mb-0">{{ audio_count }}</h2>
+            <p class="mb-0 text-muted">Audios Analyzed</p>
+            <a href="{% url 'audio_list' %}" class="btn btn-sm btn-outline-danger mt-3 w-100">Audio Dashboard</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-camera-video-fill text-info" style="font-size: 2.5rem;"></i>
+            <h2 class="mt-2 mb-0">{{ video_count }}</h2>
+            <p class="mb-0 text-muted">Videos Analyzed</p>
+            <a href="{% url 'video_list' %}" class="btn btn-sm btn-outline-info mt-3 w-100">Video Dashboard</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="content-card stat-card text-center mb-0 p-4">
+            <i class="bi bi-database-fill text-success" style="font-size: 2.5rem;"></i>
+            <h2 class="mt-2 mb-0">{{ user.dataset_set.count }}</h2>
+            <p class="mb-0 text-muted">Datasets Uploaded</p>
+            <a href="{% url 'dataset_list' %}" class="btn btn-sm btn-outline-success mt-3 w-100">My Datasets</a>
+        </div>
+    </div>
+</div>
+
+<!-- WELCOME HEADER -->
+<div class="content-card text-center mb-4 py-5">
+    <h2 class="page-title mb-2" style="font-size: 2.5rem;">Welcome to BSP Dashboard</h2>
+    <p class="page-subtitle mb-0" style="font-size: 1.1rem;">Upload your dataset to start the automated AI analysis</p>
+</div>
+
+<!-- UPLOAD DATASET FORM -->
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="content-card p-4">
+            <h4 class="mb-4"><i class="bi bi-cloud-upload text-primary"></i> Upload Dataset (CSV/Excel)</h4>
+            <form method="POST" action="{% url 'upload_dataset' %}" enctype="multipart/form-data" onsubmit="showSpinner('uploadBtn', 'Uploading & Analyzing...')">
+                {% csrf_token %}
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-muted">Choose File</label>
+                    <input type="file" name="dataset_file" class="form-control form-control-lg" accept=".csv, .xlsx" required style="background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.2);">
+                </div>
+                <button type="submit" id="uploadBtn" class="btn btn-success btn-lg w-100">
+                    <i class="bi bi-upload"></i> Upload & Analyze
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

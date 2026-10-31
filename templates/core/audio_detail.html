@@ -3,13 +3,13 @@
 {% block content %}
 
 {% if status == 'processing' or status == 'pending' %}
-<div class="alert alert-info text-center">
+<div class="alert alert-info text-center" style="background: rgba(23, 162, 184, 0.2); border: 1px solid rgba(23, 162, 184, 0.4); color: #fff;">
     <div class="spinner-border spinner-border-sm me-2" role="status"></div>
     <b>Processing audio in background...</b> Refresh page in 1-2 minutes.
     <br><small class="text-muted">Status: {{ status }}</small>
 </div>
 {% elif status and 'failed' in status %}
-<div class="alert alert-danger">❌ <b>Processing failed:</b> {{ status }}</div>
+<div class="alert alert-danger" style="background: rgba(220, 53, 69, 0.2); border: 1px solid rgba(220, 53, 69, 0.4); color: #fff;">❌ <b>Processing failed:</b> {{ status }}</div>
 {% endif %}
 
 {% if analysis %}
@@ -56,8 +56,9 @@
                     <span class="badge bg-primary">Language: {{ analysis.transcription.language|upper }}</span>
                     <span class="badge bg-success">Words: {{ analysis.transcription.word_count }}</span>
                 </div>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #dc3545;">
-                    <p style="white-space: pre-wrap; line-height: 1.7; margin: 0;">{{ analysis.transcription.text }}</p>
+                <!-- 🟢 UI FIX: Background dark aur text white kiya gaya hai -->
+                <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; border-left: 4px solid #dc3545; border: 1px solid rgba(255,255,255,0.1);">
+                    <p style="white-space: pre-wrap; line-height: 1.7; margin: 0; color: #fff; font-size: 1rem;">{{ analysis.transcription.text }}</p>
                 </div>
             {% else %}
                 <p class="text-muted">No speech detected in the audio.</p>
@@ -70,8 +71,8 @@
                 The waveform visualization shows the audio amplitude over time. 
                 Higher peaks indicate louder sections, lower peaks indicate quieter sections.
             </p>
-            <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white;">
-                <span><i class="bi bi-music-note-beamed" style="font-size: 30px;"></i> Audio Analyzed</span>
+            <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 80px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                <span><i class="bi bi-music-note-beamed" style="font-size: 24px; margin-right: 10px;"></i> Audio Analyzed</span>
             </div>
         </div>
     </div>
