@@ -1,6 +1,7 @@
 import os
 import cv2
 import tempfile
+import librosa  
 
 try:
     from ultralytics import YOLO
@@ -20,7 +21,6 @@ class VideoAnalyzer:
         self.video_path = video_path
 
     def get_basic_info(self):
-        """Video metadata"""
         try:
             cap = cv2.VideoCapture(self.video_path)
             fps = cap.get(cv2.CAP_PROP_FPS)
@@ -43,14 +43,12 @@ class VideoAnalyzer:
             return {'error': str(e)}
 
     def extract_frames(self, num_frames=5):
-        """5 sample frames extract karo (evenly spaced)"""
         try:
             cap = cv2.VideoCapture(self.video_path)
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             if total_frames == 0:
                 return []
 
-            # Evenly spaced frame indices
             step = max(1, total_frames // num_frames)
             frame_indices = [i * step for i in range(num_frames) if i * step < total_frames]
 
@@ -59,7 +57,6 @@ class VideoAnalyzer:
                 cap.set(cv2.CAP_PROP_POS_FRAMES, idx)
                 ret, frame = cap.read()
                 if ret:
-                    # Temp file mein save karo
                     temp_path = os.path.join(tempfile.gettempdir(), f"frame_{idx}.jpg")
                     cv2.imwrite(temp_path, frame)
                     frames.append({
@@ -70,11 +67,10 @@ class VideoAnalyzer:
 
             cap.release()
             return frames
-        except Exception as e:
+        except Exception:
             return []
 
     def detect_objects_in_frames(self):
-        """Har frame mein objects detect karo"""
         if not YOLO_AVAILABLE:
             return {'error': 'YOLO not installed', 'detections': []}
 
@@ -94,7 +90,7 @@ class VideoAnalyzer:
                         cls = int(box.cls[0])
                         conf = float(box.conf[0])
                         label = model.names[cls]
-                        if conf > 0.4:  # Sirf confident detections
+                        if conf > 0.4:
                             frame_objects.append({
                                 'label': label,
                                 'confidence': round(conf * 100, 2)
@@ -107,14 +103,12 @@ class VideoAnalyzer:
                     'count': len(frame_objects)
                 })
 
-            # Clean up temp files
             for f in frames:
                 try:
                     os.remove(f['path'])
                 except:
                     pass
 
-            # Unique objects across all frames
             all_labels = []
             for d in all_detections:
                 for obj in d['objects']:
@@ -130,13 +124,19 @@ class VideoAnalyzer:
             return {'error': str(e), 'detections': []}
 
     def transcribe_audio(self):
-        """Video ka audio transcribe karo Whisper se"""
         if not WHISPER_AVAILABLE:
             return {'error': 'Whisper not installed', 'text': ''}
 
         try:
+            # 🟢 FIX: Librosa se direct video se audio nikalo (No ffmpeg command needed)
+            # Whisper hamesha 16000 Hz sample rate chahta hai
+            audio_data, sr = librosa.load(self.video_path, sr=16000, mono=True)
+
             model = whisper.load_model("base")
-            result = model.transcribe(self.video_path, fp16=False)
+            
+            # Ab numpy array ko direct pass karo
+            result = model.transcribe(audio_data, fp16=False)
+            
             text = result.get('text', '').strip()
             language = result.get('language', 'unknown')
 
@@ -149,7 +149,6 @@ class VideoAnalyzer:
             return {'error': str(e), 'text': ''}
 
     def get_analysis(self):
-        """Sab kuch ek saath"""
         return {
             'basic': self.get_basic_info(),
             'detections': self.detect_objects_in_frames(),

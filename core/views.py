@@ -8,7 +8,9 @@ from django.core.files.base import ContentFile
 from django.core.cache import cache
 from io import BytesIO
 import os
+import threading
 import pandas as pd
+from PIL import Image
 from .models import Dataset, ImageDataset, AudioDataset, VideoDataset
 from analytics.analyzer import DataAnalyzer
 from analytics.ai_summary import generate_ai_summary
@@ -17,63 +19,50 @@ from analytics.cleaner import DataCleaner
 from analytics.image_analyzer import ImageAnalyzer
 from analytics.audio_analyzer import AudioAnalyzer
 from analytics.video_analyzer import VideoAnalyzer
+from analytics.security_checker import SecurityChecker
 from ml_engine.trainer import ModelTrainer
 
-# ============================================================
-# 🟢 HELPER FUNCTION (Synchronous Processing - No Celery)
-# ============================================================
-def process_media_upload(request, file_key, model_class, field_name, analyzer_class, allowed_exts, media_type):
-    # 🟢 FIX: Agar page sirf khula hai (GET request), toh upload form dikhao, redirect mat karo
-    if request.method == 'GET':
-        return render(request, f'core/upload_{media_type}.html')
+security_checker = SecurityChecker()
 
-    if request.method == 'POST' and request.FILES.get(file_key):
-        uploaded_file = request.FILES[file_key]
+# ============================================================
+# 🟢 BACKGROUND TASK (Check AI -> Delete if fake -> Analyze if real)
+# ============================================================
+def process_media_task(media_type, instance, analyzer_class, file_path):
+    try:
+        # Step 1: Security Check
+        is_safe, reason = True, "Safe"
+        try:
+            if media_type == 'image':
+                is_safe, reason = security_checker.check_image_safety(file_path)
+            elif media_type == 'audio':
+                is_safe, reason = security_checker.check_audio_safety(file_path)
+            elif media_type == 'video':
+                is_safe, reason = security_checker.check_video_safety(file_path)
+        except Exception as e:
+            is_safe, reason = True, f"Security check skipped: {str(e)}"
+
+        # Step 2: Agar AI-generated ya NSFW hai, toh reject karo
+        if not is_safe:
+            cache.set(f'{media_type}_status_{instance.id}', f'failed: {reason}', timeout=3600)
+            try: os.remove(file_path)
+            except: pass
+            instance.delete() # Database se delete kar do
+            return
+
+        # Step 3: Agar Real hai, toh Analysis karo
+        cache.set(f'{media_type}_status_{instance.id}', 'processing', timeout=3600)
+        analyzer = analyzer_class(file_path)
+        analysis = analyzer.get_analysis()
         
-        # 1. Validation
-        if not uploaded_file.name.lower().endswith(allowed_exts):
-            messages.error(request, f"Invalid {media_type} format! Upload {', '.join(allowed_exts)}.")
-            return redirect(request.path)
-            
-        # 50MB limit for all files
-        if uploaded_file.size > 50 * 1024 * 1024:
-            messages.error(request, f"File too large! Maximum allowed size is 50MB.")
-            return redirect(request.path)
+        cache.set(f'{media_type}_result_{instance.id}', analysis, timeout=3600)
+        cache.set(f'{media_type}_status_{instance.id}', 'completed', timeout=3600)
 
-        # 2. Save to Database
-        try:
-            kwargs = {field_name: uploaded_file}
-            instance = model_class(name=uploaded_file.name, **kwargs)
-            if request.user.is_authenticated:
-                instance.user = request.user
-            instance.save()
-        except Exception as e:
-            messages.error(request, f"Upload failed. Server error: {str(e)[:80]}")
-            return redirect(request.path)
+    except Exception as e:
+        cache.set(f'{media_type}_status_{instance.id}', f'failed: {str(e)}', timeout=3600)
 
-        # 3. Process Analysis (DIRECTLY - Synchronous)
-        try:
-            cache.set(f'{media_type}_status_{instance.id}', 'processing', timeout=3600)
-            
-            file_path = getattr(instance, field_name).path
-            analyzer = analyzer_class(file_path)
-            analysis = analyzer.get_analysis()
-            
-            cache.set(f'{media_type}_result_{instance.id}', analysis, timeout=3600)
-            cache.set(f'{media_type}_status_{instance.id}', 'completed', timeout=3600)
-            messages.success(request, f"{media_type.capitalize()} analyzed successfully!")
-        except Exception as e:
-            cache.set(f'{media_type}_status_{instance.id}', f'failed: {str(e)}', timeout=3600)
-            messages.error(request, f"{media_type.capitalize()} analysis failed: {str(e)}")
-
-        # 4. Redirect to Detail page
-        redirect_kwargs = {f'{media_type}_id': instance.id}
-        return redirect(f'{media_type}_detail', **redirect_kwargs)
-
-    return redirect(request.path)
 
 # ============================================================
-# TABULAR DATA VIEWS
+# TABULAR DATA VIEWS (Same as before)
 # ============================================================
 
 @login_required(login_url='login')
@@ -88,7 +77,6 @@ def dashboard_view(request, dataset_id=None):
         'audio_count': AudioDataset.objects.count(),
         'video_count': VideoDataset.objects.count(),
     }
-    
     if not dataset_id:
         return render(request, 'core/upload.html', context)
 
@@ -109,18 +97,15 @@ def dashboard_view(request, dataset_id=None):
         context['ai_summary'] = generate_ai_summary(analyzer)
     except Exception as e:
         context['error'] = str(e)
-        
     return render(request, 'core/dashboard.html', context)
 
 @login_required(login_url='login')
 def upload_dataset(request):
     if request.method == 'POST' and request.FILES.get('dataset_file'):
         uploaded_file = request.FILES['dataset_file']
-        
         if not uploaded_file.name.lower().endswith(('.csv', '.xlsx', '.xls')):
             messages.error(request, "Invalid file type! Please upload CSV or Excel file only.")
             return redirect('dashboard')
-            
         if uploaded_file.size > 50 * 1024 * 1024:
             messages.error(request, "File too large! Maximum allowed size is 50MB.")
             return redirect('dashboard')
@@ -135,14 +120,12 @@ def upload_dataset(request):
         except Exception as e:
             messages.error(request, f"Upload failed. Server error: {str(e)[:80]}")
             return redirect('dashboard')
-            
     return redirect('dashboard')
 
 @login_required(login_url='login')
 def train_model_view(request, dataset_id):
     latest_dataset = get_object_or_404(Dataset, id=dataset_id)
     trainer = ModelTrainer(latest_dataset.file.path)
-    
     target_col = request.POST.get('target_column') if request.method == 'POST' else None
     result, error = trainer.train(target_col=target_col)
 
@@ -184,7 +167,6 @@ def email_report_view(request, dataset_id):
         'best_algorithm': ml_result.get('best_algorithm', 'Not Trained Yet'),
     }
     pdf = generate_pdf(context)
-
     if pdf:
         subject = f"BSP Dashboard Report: {latest_dataset.name}"
         body = f"Hello,\n\nPlease find attached the analysis report for {latest_dataset.name}.\n\nRegards,\nBSP Dashboard Team"
@@ -257,8 +239,58 @@ def clean_data_view(request, dataset_id):
     })
 
 # ============================================================
-# MEDIA UPLOADS (Using Helper + Synchronous Processing)
+# MEDIA UPLOADS (Threading ke saath)
 # ============================================================
+def process_media_upload(request, file_key, model_class, field_name, analyzer_class, allowed_exts, media_type):
+    if request.method == 'GET':
+        return render(request, f'core/upload_{media_type}.html')
+
+    if request.method == 'POST' and request.FILES.get(file_key):
+        uploaded_file = request.FILES[file_key]
+        
+        if not uploaded_file.name.lower().endswith(allowed_exts):
+            messages.error(request, f"Invalid {media_type} format! Upload {', '.join(allowed_exts)}.")
+            return redirect(request.path)
+            
+        if uploaded_file.size > 50 * 1024 * 1024:
+            messages.error(request, "File too large! Maximum allowed size is 50MB.")
+            return redirect(request.path)
+
+        try:
+            kwargs = {field_name: uploaded_file}
+            instance = model_class(name=uploaded_file.name, **kwargs)
+            if request.user.is_authenticated:
+                instance.user = request.user
+            instance.save()
+        except Exception as e:
+            messages.error(request, f"Upload failed. Server error: {str(e)[:80]}")
+            return redirect(request.path)
+
+        file_path = getattr(instance, field_name).path
+
+        if media_type == 'image':
+            try:
+                img = Image.open(file_path)
+                if img.width > 800 or img.height > 800:
+                    img.thumbnail((800, 800))
+                    img.save(file_path)
+            except Exception as e:
+                print(f"Resize error: {e}")
+
+        # Background Thread Start
+        cache.set(f'{media_type}_status_{instance.id}', 'pending', timeout=3600)
+        thread = threading.Thread(
+            target=process_media_task, 
+            args=(media_type, instance, analyzer_class, file_path)
+        )
+        thread.start()
+        
+        messages.success(request, f"{media_type.capitalize()} uploaded! Checking authenticity in background...")
+        
+        redirect_kwargs = {f'{media_type}_id': instance.id}
+        return redirect(f'{media_type}_detail', **redirect_kwargs)
+
+    return redirect(request.path)
 
 @login_required(login_url='login')
 def upload_image_view(request):
@@ -272,23 +304,56 @@ def upload_audio_view(request):
 def upload_video_view(request):
     return process_media_upload(request, 'video_file', VideoDataset, 'video', VideoAnalyzer, ('.mp4', '.avi', '.mov', '.mkv', '.webm'), 'video')
 
-# Detail Views
+# ============================================================
+# DETAIL VIEWS (Error Handling ke saath)
+# ============================================================
+
 @login_required(login_url='login')
 def image_detail_view(request, image_id):
-    img = get_object_or_404(ImageDataset, id=image_id)
-    return render(request, 'core/image_detail.html', {'image': img, 'analysis': cache.get(f'image_result_{image_id}'), 'status': cache.get(f'image_status_{image_id}', 'pending')})
+    try:
+        img = ImageDataset.objects.get(id=image_id)
+        status = cache.get(f'image_status_{image_id}', 'pending')
+        analysis = cache.get(f'image_result_{image_id}')
+        return render(request, 'core/image_detail.html', {'image': img, 'analysis': analysis, 'status': status})
+    except ImageDataset.DoesNotExist:
+        status = cache.get(f'image_status_{image_id}', '')
+        if 'failed' in status:
+            messages.error(request, f"Security Alert: {status.split('failed: ')[-1]}")
+        else:
+            messages.error(request, "Image not found or was deleted.")
+        return redirect('upload_image')
 
 @login_required(login_url='login')
 def audio_detail_view(request, audio_id):
-    audio = get_object_or_404(AudioDataset, id=audio_id)
-    return render(request, 'core/audio_detail.html', {'audio': audio, 'analysis': cache.get(f'audio_result_{audio_id}'), 'status': cache.get(f'audio_status_{audio_id}', 'pending')})
+    try:
+        audio = AudioDataset.objects.get(id=audio_id)
+        status = cache.get(f'audio_status_{audio_id}', 'pending')
+        analysis = cache.get(f'audio_result_{audio_id}')
+        return render(request, 'core/audio_detail.html', {'audio': audio, 'analysis': analysis, 'status': status})
+    except AudioDataset.DoesNotExist:
+        status = cache.get(f'audio_status_{audio_id}', '')
+        if 'failed' in status:
+            messages.error(request, f"Security Alert: {status.split('failed: ')[-1]}")
+        else:
+            messages.error(request, "Audio not found or was deleted.")
+        return redirect('upload_audio')
 
 @login_required(login_url='login')
 def video_detail_view(request, video_id):
-    video = get_object_or_404(VideoDataset, id=video_id)
-    return render(request, 'core/video_detail.html', {'video': video, 'analysis': cache.get(f'video_result_{video_id}'), 'status': cache.get(f'video_status_{video_id}', 'pending')})
+    try:
+        video = VideoDataset.objects.get(id=video_id)
+        status = cache.get(f'video_status_{video_id}', 'pending')
+        analysis = cache.get(f'video_result_{video_id}')
+        return render(request, 'core/video_detail.html', {'video': video, 'analysis': analysis, 'status': status})
+    except VideoDataset.DoesNotExist:
+        status = cache.get(f'video_status_{video_id}', '')
+        if 'failed' in status:
+            messages.error(request, f"Security Alert: {status.split('failed: ')[-1]}")
+        else:
+            messages.error(request, "Video not found or was deleted.")
+        return redirect('upload_video')
 
-# Delete Views
+# Delete Views & List Views (Same as before)
 @login_required(login_url='login')
 def delete_dataset_view(request, dataset_id):
     if request.method == 'POST':
@@ -317,7 +382,6 @@ def delete_video_view(request, video_id):
         messages.warning(request, "Video deleted successfully.")
     return redirect('video_list')
 
-# List Views
 @login_required(login_url='login')
 def image_list_view(request):
     return render(request, 'core/image_list.html', {'images': ImageDataset.objects.all().order_by('-uploaded_at')})
